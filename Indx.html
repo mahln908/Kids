@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Kids - Conteúdo Infantil Educativo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Neue', cursive;
+        }
+
+        body {
+            background-color: #f0f8ff;
+            color: #333;
+        }
+
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ff9a9e;
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1s ease-out;
+        }
+
+        .animation-container {
+            text-align: center;
+        }
+
+        .title-animation {
+            font-size: 5rem;
+            color: white;
+            text-shadow: 3px 3px 0 #ff6b88;
+            animation: bounce 2s infinite;
+        }
+
+        .animals-animation {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+            gap: 1.5rem;
+        }
+
+        .animal {
+            font-size: 3rem;
+            animation: float 3s infinite ease-in-out;
+        }
+
+        #lion { animation-delay: 0s; }
+        #elephant { animation-delay: 0.5s; }
+        #giraffe { animation-delay: 1s; }
+        #zebra { animation-delay: 1.5s; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: none;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: #ff6b88;
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        #searchInput {
+            padding: 10px 15px;
+            width: 60%;
+            max-width: 500px;
+            border: 2px solid #ff9a9e;
+            border-radius: 25px 0 0 25px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        #searchButton {
+            padding: 10px 20px;
+            background-color: #ff6b88;
+            color: white;
+            border: none;
+            border-radius: 0 25px 25px 0;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        #searchButton:hover {
+            background-color: #ff4d6d;
+        }
+
+        .video-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+
+        .video-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #ff6b88;
+            grid-column: 1 / -1;
+        }
+
+        .load-more {
+            text-align: center;
+            margin: 20px 0;
+            grid-column: 1 / -1;
+        }
+
+        #loadMoreBtn {
+            padding: 10px 20px;
+            background-color: #ff6b88;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        #loadMoreBtn:hover {
+            background-color: #ff4d6d;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #666;
+        }
+
+        .fullscreen-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 2000;
+            display: none;
+        }
+
+        .fullscreen-iframe-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .fullscreen-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #ff6b88;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 2001;
+            font-size: 1.2rem;
+        }
+
+        .rotation-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 25px;
+            z-index: 2002;
+            animation: fadeOut 5s forwards;
+            display: none;
+            max-width: 80%;
+            text-align: center;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .title-animation {
+                font-size: 3rem;
+            }
+            
+            .animal {
+                font-size: 2rem;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            #searchInput {
+                width: 70%;
+            }
+            
+            .video-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de Animação Inicial -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="animation-container">
+            <h1 class="title-animation">My Kids</h1>
+            <div class="animals-animation">
+                <div class="animal" id="lion">🦁</div>
+                <div class="animal" id="elephant">🐘</div>
+                <div class="animal" id="giraffe">🦒</div>
+                <div class="animal" id="zebra">🦓</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="main-content" id="mainContent">
+        <header>
+            <h1>My Kids</h1>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Buscar desenhos educativos...">
+                <button id="searchButton">Pesquisar</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="video-container" id="videoContainer">
+                <div class="loading" id="loading">Carregando vídeos...</div>
+            </div>
+            <div class="load-more">
+                <button id="loadMoreBtn" style="display: none;">Carregar Mais</button>
+            </div>
+        </main>
+
+        <footer>
+            <p>Conteúdo educativo e seguro para crianças</p>
+        </footer>
+    </div>
+
+    <!-- Modal de Tela Cheia -->
+    <div class="fullscreen-modal" id="fullscreenModal">
+        <div class="fullscreen-iframe-container">
+            <button class="back-button" id="backButton">←</button>
+            <iframe class="fullscreen-iframe" id="fullscreenIframe" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- Mensagem de rotação -->
+    <div class="rotation-message" id="rotationMessage">
+        Para melhor experiência, ative a rotação de tela no seu celular
+    </div>
+
+    <script>
+        // Variáveis globais
+        let currentSearchQuery = '';
+        let nextPageToken = '';
+        let loadedVideoIds = new Set();
+        let currentPage = 0;
+        let currentVideoIndex = 0;
+        let currentVideosList = [];
+        let playerStateCheckInterval;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mostra a animação inicial por 3 segundos
+            setTimeout(function() {
+                const splashScreen = document.getElementById('splashScreen');
+                splashScreen.style.opacity = '0';
+                
+                setTimeout(function() {
+                    splashScreen.style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                    
+                    // Carrega vídeos infantis educacionais por padrão
+                    currentSearchQuery = 'desenhos educativos para crianças';
+                    searchVideos(currentSearchQuery);
+                }, 1000);
+            }, 3000);
+
+            // Configura o botão de pesquisa
+            document.getElementById('searchButton').addEventListener('click', function() {
+                const searchTerm = document.getElementById('searchInput').value;
+                if (searchTerm.trim() !== '') {
+                    loadedVideoIds = new Set();
+                    currentPage = 0;
+                    currentSearchQuery = searchTerm + ' desenho infantil educativo';
+                    searchVideos(currentSearchQuery);
+                }
+            });
+
+            // Permite pesquisar ao pressionar Enter
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const searchTerm = document.getElementById('searchInput').value;
+                    if (searchTerm.trim() !== '') {
+                        loadedVideoIds = new Set();
+                        currentPage = 0;
+                        currentSearchQuery = searchTerm + ' desenho infantil educativo';
+                        searchVideos(currentSearchQuery);
+                    }
+                }
+            });
+
+            // Botão Carregar Mais
+            document.getElementById('loadMoreBtn').addEventListener('click', function() {
+                loadMoreVideos();
+            });
+
+            // Botão Voltar no player
+            document.getElementById('backButton').addEventListener('click', function() {
+                closeFullscreenVideo();
+            });
+        });
+
+        function searchVideos(query) {
+            const videoContainer = document.getElementById('videoContainer');
+            videoContainer.innerHTML = '<div class="loading">Carregando vídeos...</div>';
+            document.getElementById('loadMoreBtn').style.display = 'none';
+            
+            const API_KEY = 'AIzaSyC_8CHxOvjcNCs36B-Omt3v5VjzVAazdIw';
+            const maxResults = 12;
+            
+            const orderOptions = ['date', 'rating', 'relevance', 'title', 'viewCount'];
+            const randomOrder = orderOptions[Math.floor(Math.random() * orderOptions.length)];
+            
+            // Filtra para pegar apenas vídeos (não shorts) e com duração média
+            let url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&q=${encodeURIComponent(query)}&part=snippet&maxResults=${maxResults}&type=video&videoEmbeddable=true&videoSyndicated=true&safeSearch=strict&relevanceLanguage=pt&regionCode=BR&order=${randomOrder}&videoDuration=medium`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.items && data.items.length > 0) {
+                        // Filtra para remover possíveis shorts que passaram
+                        const filteredVideos = data.items.filter(video => {
+                            return !video.snippet.title.toLowerCase().includes('#shorts') && 
+                                   !video.snippet.description.toLowerCase().includes('#shorts');
+                        });
+                        
+                        if (filteredVideos.length > 0) {
+                            const newVideos = filteredVideos.filter(video => !loadedVideoIds.has(video.id.videoId));
+                            
+                            if (newVideos.length > 0) {
+                                newVideos.forEach(video => loadedVideoIds.add(video.id.videoId));
+                                const shuffledItems = shuffleArray(newVideos);
+                                currentVideosList = shuffledItems;
+                                displayVideos(shuffledItems);
+                                nextPageToken = data.nextPageToken || '';
+                                
+                                if (nextPageToken) {
+                                    document.getElementById('loadMoreBtn').style.display = 'block';
+                                }
+                            } else {
+                                if (data.nextPageToken) {
+                                    nextPageToken = data.nextPageToken;
+                                    loadMoreVideos();
+                                } else {
+                                    videoContainer.innerHTML = '<div class="loading">Nenhum vídeo novo encontrado.</div>';
+                                }
+                            }
+                        } else {
+                            videoContainer.innerHTML = '<div class="loading">Nenhum vídeo educativo encontrado. Tente outro termo.</div>';
+                        }
+                    } else {
+                        videoContainer.innerHTML = '<div class="loading">Nenhum vídeo educativo encontrado. Tente outro termo.</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar vídeos:', error);
+                    videoContainer.innerHTML = '<div class="loading">Ocorreu um erro ao carregar os vídeos.</div>';
+                });
+        }
+
+        function loadMoreVideos() {
+            if (!nextPageToken) return;
+            
+            document.getElementById('loadMoreBtn').style.display = 'none';
+            const loading = document.createElement('div');
+            loading.className = 'loading';
+            loading.textContent = 'Carregando mais vídeos...';
+            document.querySelector('.load-more').appendChild(loading);
+            
+            const API_KEY = 'AIzaSyC_8CHxOvjcNCs36B-Omt3v5VjzVAazdIw';
+            const maxResults = 12;
+            
+            currentPage++;
+            const orderOptions = ['date', 'rating', 'relevance', 'title', 'viewCount'];
+            const randomOrder = orderOptions[currentPage % orderOptions.length];
+            
+            const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&q=${encodeURIComponent(currentSearchQuery)}&part=snippet&maxResults=${maxResults}&type=video&videoEmbeddable=true&videoSyndicated=true&safeSearch=strict&relevanceLanguage=pt&regionCode=BR&order=${randomOrder}&videoDuration=medium&pageToken=${nextPageToken}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.items && data.items.length > 0) {
+                        // Filtra para remover possíveis shorts que passaram
+                        const filteredVideos = data.items.filter(video => {
+                            return !video.snippet.title.toLowerCase().includes('#shorts') && 
+                                   !video.snippet.description.toLowerCase().includes('#shorts');
+                        });
+                        
+                        if (filteredVideos.length > 0) {
+                            const newVideos = filteredVideos.filter(video => !loadedVideoIds.has(video.id.videoId));
+                            
+                            if (newVideos.length > 0) {
+                                newVideos.forEach(video => loadedVideoIds.add(video.id.videoId));
+                                const shuffledItems = shuffleArray(newVideos);
+                                currentVideosList = [...currentVideosList, ...shuffledItems];
+                                displayAdditionalVideos(shuffledItems);
+                                nextPageToken = data.nextPageToken || '';
+                                
+                                if (nextPageToken) {
+                                    document.getElementById('loadMoreBtn').style.display = 'block';
+                                }
+                            } else {
+                                if (data.nextPageToken) {
+                                    nextPageToken = data.nextPageToken;
+                                    loadMoreVideos();
+                                }
+                            }
+                        }
+                    }
+                    
+                    document.querySelector('.load-more').removeChild(loading);
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar mais vídeos:', error);
+                    document.querySelector('.load-more').removeChild(loading);
+                    document.getElementById('loadMoreBtn').style.display = 'block';
+                });
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function displayVideos(videos) {
+            const videoContainer = document.getElementById('videoContainer');
+            videoContainer.innerHTML = '';
+            
+            videos.forEach((video, index) => {
+                createVideoCard(video, videoContainer, index);
+            });
+        }
+
+        function displayAdditionalVideos(videos) {
+            const videoContainer = document.getElementById('videoContainer');
+            
+            videos.forEach((video, index) => {
+                createVideoCard(video, videoContainer, currentVideosList.length - videos.length + index);
+            });
+        }
+
+        function createVideoCard(video, container, index) {
+            const videoId = video.id.videoId;
+            const title = video.snippet.title;
+            const thumbnail = video.snippet.thumbnails.medium.url;
+            
+            const videoCard = document.createElement('div');
+            videoCard.className = 'video-card';
+            videoCard.innerHTML = `
+                <img src="${thumbnail}" alt="${title}" class="video-thumbnail">
+                <div class="video-info">
+                    <div class="video-title">${title}</div>
+                </div>
+            `;
+            
+            videoCard.addEventListener('click', () => {
+                currentVideoIndex = index;
+                openFullscreenVideo(videoId, title);
+            });
+            
+            container.appendChild(videoCard);
+        }
+
+        function openFullscreenVideo(videoId, title) {
+            const modal = document.getElementById('fullscreenModal');
+            const iframe = document.getElementById('fullscreenIframe');
+
+               // Configura para reproduzir automaticamente o próximo vídeo
+            const nextVideoId = getNextVideoId();
+            const playlist = currentVideosList.map(v => v.id.videoId).join(',');
+            
+            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&fs=1&rel=0&playlist=${playlist}&loop=1`;
+            iframe.title = title;
+            modal.style.display = 'block';
+            
+            // Mostra mensagem de rotação para dispositivos móveis
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                const rotationMessage = document.getElementById('rotationMessage');
+                rotationMessage.style.display = 'block';
+                setTimeout(() => {
+                    rotationMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(e => {
+                    console.log('Não foi possível bloquear orientação:', e);
+                });
+            }
+            
+            // Configura o listener para detectar quando o vídeo termina
+            setupPlayerStateListener();
+        }
+
+        function getNextVideoId() {
+            if (currentVideosList.length > 0) {
+                const nextIndex = (currentVideoIndex + 1) % currentVideosList.length;
+                return currentVideosList[nextIndex].id.videoId;
+            }
+            return null;
+        }
+
+        function setupPlayerStateListener() {
+            // Remove listener anterior se existir
+            if (playerStateCheckInterval) {
+                clearInterval(playerStateCheckInterval);
+            }
+            
+            // Configura novo listener
+            playerStateCheckInterval = setInterval(() => {
+                const iframe = document.getElementById('fullscreenIframe');
+                if (iframe.contentWindow) {
+                    iframe.contentWindow.postMessage('{"event":"command","func":"getPlayerState","args":""}', '*');
+                }
+            }, 1000);
+            
+            window.addEventListener('message', function(e) {
+                if (e.origin === 'https://www.youtube.com') {
+                    try {
+                        const data = JSON.parse(e.data);
+                        if (data.info && data.info.playerState === 0) { // 0 = vídeo terminou
+                            playNextVideo();
+                        }
+                    } catch (error) {
+                        console.error('Erro ao processar mensagem do player:', error);
+                    }
+                }
+            });
+        }
+
+        function playNextVideo() {
+            if (currentVideosList.length > 0) {
+                currentVideoIndex = (currentVideoIndex + 1) % currentVideosList.length;
+                const nextVideo = currentVideosList[currentVideoIndex];
+                const iframe = document.getElementById('fullscreenIframe');
+                iframe.src = `https://www.youtube.com/embed/${nextVideo.id.videoId}?autoplay=1&modestbranding=1&fs=1&rel=0&playlist=${currentVideosList.map(v => v.id.videoId).join(',')}&loop=1`;
+            }
+        }
+
+        function closeFullscreenVideo() {
+            const modal = document.getElementById('fullscreenModal');
+            const iframe = document.getElementById('fullscreenIframe');
+            
+            if (playerStateCheckInterval) {
+                clearInterval(playerStateCheckInterval);
+            }
+            
+            iframe.src = '';
+            modal.style.display = 'none';
+            
+            if (screen.orientation && screen.orientation.unlock) {
+                screen.orientation.unlock();
+            }
+        }
+
+        window.addEventListener('popstate', function() {
+            const modal = document.getElementById('fullscreenModal');
+            if (modal.style.display === 'block') {
+                closeFullscreenVideo();
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
