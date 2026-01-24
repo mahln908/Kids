@@ -1,1020 +1,137 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MMJ Music</title>
-    <meta name="theme-color" content="#1DB954">
-    <meta name="description" content="Player de música estilo Spotify">
+    <meta name="theme-color" content="#ff0000">
+    <meta name="description" content="Ouça suas músicas do YouTube.">
+    <!-- Manifesto do PWA -->
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        body {
-            background: #000;
-            color: #fff;
-            min-height: 100vh;
-        }
-
-        /* App Container */
-        .app-container {
-            display: flex;
-            height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background: #000;
-            padding: 24px 0;
-            border-right: 1px solid #333;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .logo {
-            padding: 0 24px 24px;
-            border-bottom: 1px solid #333;
-            margin-bottom: 24px;
-        }
-
-        .logo h1 {
-            font-size: 28px;
-            font-weight: 900;
-            background: linear-gradient(90deg, #1DB954, #1ED760);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: -1px;
-        }
-
-        .nav-menu {
-            padding: 0 24px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 12px 0;
-            color: #b3b3b3;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        .nav-item:hover {
-            color: #fff;
-        }
-
-        .nav-item.active {
-            color: #fff;
-        }
-
-        .nav-item i {
-            width: 24px;
-            text-align: center;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            background: linear-gradient(180deg, #121212 0%, #000 100%);
-        }
-
-        /* Header */
-        .header {
-            padding: 24px 32px;
-            background: rgba(18, 18, 18, 0.8);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .search-container {
-            display: flex;
-            gap: 12px;
-            max-width: 500px;
-        }
-
-        .search-box {
-            flex: 1;
-            background: #2a2a2a;
-            border-radius: 500px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            border: 2px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .search-box:focus-within {
-            background: #333;
-            border-color: #1DB954;
-        }
-
-        #searchInput {
-            flex: 1;
-            border: none;
-            background: transparent;
-            color: #fff;
-            font-size: 14px;
-            padding: 14px 0;
-            outline: none;
-        }
-
-        #searchButton {
-            background: #1DB954;
-            border: none;
-            color: #000;
-            padding: 12px 32px;
-            border-radius: 500px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s, background 0.3s;
-        }
-
-        #searchButton:hover {
-            background: #1ED760;
-            transform: scale(1.05);
-        }
-
-        /* Welcome Screen */
-        .welcome-screen {
-            text-align: center;
-            padding: 100px 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .welcome-icon {
-            font-size: 80px;
-            color: #1DB954;
-            margin-bottom: 30px;
-            opacity: 0.8;
-        }
-
-        .welcome-title {
-            font-size: 48px;
-            font-weight: 900;
-            margin-bottom: 16px;
-            background: linear-gradient(90deg, #1DB954, #1ED760);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .welcome-subtitle {
-            font-size: 18px;
-            color: #b3b3b3;
-            margin-bottom: 40px;
-            line-height: 1.5;
-        }
-
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            display: none;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(29, 185, 84, 0.3);
-            border-top-color: #1DB954;
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Results Grid */
-        .results-grid {
-            padding: 20px 32px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 24px;
-            display: none;
-        }
-
-        .music-card {
-            background: #181818;
-            border-radius: 8px;
-            padding: 16px;
-            transition: all 0.3s;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .music-card:hover {
-            background: #282828;
-            transform: translateY(-4px);
-        }
-
-        .music-card.playing::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: #1DB954;
-            border-radius: 8px 8px 0 0;
-        }
-
-        .card-image {
-            width: 100%;
-            aspect-ratio: 1;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-bottom: 16px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .card-artist {
-            font-size: 14px;
-            color: #b3b3b3;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-
-        /* Now Playing Bar - Estilo Spotify */
-        .now-playing-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: #181818;
-            border-top: 1px solid #333;
-            padding: 16px 24px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 1000;
-            height: 90px;
-        }
-
-        .now-playing-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            min-width: 200px;
-        }
-
-        .now-playing-image {
-            width: 56px;
-            height: 56px;
-            border-radius: 4px;
-            object-fit: cover;
-        }
-
-        .now-playing-info {
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .now-playing-title {
-            font-size: 14px;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .now-playing-artist {
-            font-size: 12px;
-            color: #b3b3b3;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-
-        .now-playing-center {
-            flex: 1;
-            max-width: 722px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .now-playing-controls {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .control-btn {
-            background: none;
-            border: none;
-            color: #fff;
-            cursor: pointer;
-            font-size: 16px;
-            padding: 8px;
-            transition: color 0.3s;
-        }
-
-        .control-btn:hover {
-            color: #1DB954;
-        }
-
-        .control-btn.play-pause {
-            background: #fff;
-            color: #000;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.3s;
-        }
-
-        .control-btn.play-pause:hover {
-            transform: scale(1.1);
-        }
-
-        .now-playing-progress {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .progress-bar {
-            flex: 1;
-            height: 4px;
-            background: #535353;
-            border-radius: 2px;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #1DB954;
-            width: 0%;
-            border-radius: 2px;
-        }
-
-        .time {
-            font-size: 12px;
-            color: #b3b3b3;
-            min-width: 40px;
-        }
-
-        .now-playing-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            min-width: 180px;
-            justify-content: flex-end;
-        }
-
-        .volume-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .volume-icon {
-            color: #b3b3b3;
-            font-size: 16px;
-        }
-
-        .volume-slider {
-            width: 100px;
-            height: 4px;
-            -webkit-appearance: none;
-            background: #535353;
-            border-radius: 2px;
-            outline: none;
-        }
-
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #1DB954;
-            cursor: pointer;
-        }
-
-        /* Background Play Notification */
-        .background-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #1DB954;
-            color: #000;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            z-index: 1001;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 20px rgba(29, 185, 84, 0.3);
-        }
-
-        /* Install Prompt */
-        .install-prompt {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            background: #282828;
-            border-radius: 8px;
-            padding: 16px;
-            display: none;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 300px;
-            z-index: 1002;
-            border: 1px solid #333;
-        }
-
-        .install-prompt p {
-            font-size: 14px;
-            color: #fff;
-        }
-
-        .install-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .install-btn {
-            flex: 1;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-
-        .install-btn.primary {
-            background: #1DB954;
-            color: #000;
-        }
-
-        .install-btn.secondary {
-            background: transparent;
-            color: #b3b3b3;
-            border: 1px solid #535353;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 80px;
-            }
-            
-            .logo h1 {
-                font-size: 20px;
-            }
-            
-            .nav-item span {
-                display: none;
-            }
-            
-            .now-playing-bar {
-                flex-direction: column;
-                height: auto;
-                padding: 12px;
-            }
-            
-            .now-playing-left,
-            .now-playing-right {
-                display: none;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        body { background: #0f0f0f; color: #fff; padding: 20px; }
+        .logo { text-align: center; font-size: 2.5em; color: #ff0000; margin: 20px 0; font-weight: bold; }
+        .search-box { display: flex; margin: 30px auto; max-width: 600px; }
+        #searchInput { flex: 1; padding: 15px; border: none; border-radius: 30px 0 0 30px; background: #222; color: #fff; }
+        #searchButton { padding: 15px 25px; border: none; background: #ff0000; color: white; border-radius: 0 30px 30px 0; cursor: pointer; }
+        #results { max-width: 800px; margin: 20px auto; }
+        .music-item { background: #222; padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; align-items: center; cursor: pointer; }
+        .music-item img { width: 60px; height: 60px; border-radius: 5px; margin-right: 15px; }
+        #player { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 15px; display: none; text-align: center; border-top: 2px solid #ff0000; }
+        #nowPlaying { margin-bottom: 10px; font-weight: bold; }
+        #audioPlayer { width: 80%; margin: 10px auto; display: block; }
+        .status { padding: 10px; background: #ff0000; color: white; position: fixed; top: 10px; right: 10px; border-radius: 5px; display: none; }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="logo">
-                <h1>MMJ MUSIC</h1>
-            </div>
-            
-            <div class="nav-menu">
-                <div class="nav-item active" id="navHome">
-                    <i class="fas fa-home"></i>
-                    <span>Início</span>
-                </div>
-                <div class="nav-item" id="navSearch">
-                    <i class="fas fa-search"></i>
-                    <span>Buscar</span>
-                </div>
-                <div class="nav-item" id="navLibrary">
-                    <i class="fas fa-music"></i>
-                    <span>Sua Biblioteca</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Header -->
-            <div class="header">
-                <div class="search-container">
-                    <div class="search-box">
-                        <i class="fas fa-search" style="color: #b3b3b3; margin-right: 8px;"></i>
-                        <input type="text" id="searchInput" placeholder="O que você quer ouvir?">
-                    </div>
-                    <button id="searchButton">
-                        <i class="fas fa-search"></i> Buscar
-                    </button>
-                </div>
-            </div>
-
-            <!-- Welcome Screen -->
-            <div class="welcome-screen" id="welcomeScreen">
-                <div class="welcome-icon">
-                    <i class="fas fa-music"></i>
-                </div>
-                <h1 class="welcome-title">MMJ Music</h1>
-                <p class="welcome-subtitle">
-                    Busque suas músicas favoritas do YouTube<br>
-                    e reproduza mesmo com o app fechado
-                </p>
-            </div>
-
-            <!-- Loading -->
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>Buscando músicas...</p>
-            </div>
-
-            <!-- Results Grid -->
-            <div class="results-grid" id="resultsGrid">
-                <!-- Results will appear here -->
-            </div>
-        </div>
-
-        <!-- Now Playing Bar -->
-        <div class="now-playing-bar" id="nowPlayingBar">
-            <div class="now-playing-left">
-                <img id="nowPlayingImage" src="" alt="Album" class="now-playing-image">
-                <div class="now-playing-info">
-                    <div id="nowPlayingTitle" class="now-playing-title">Título da Música</div>
-                    <div id="nowPlayingArtist" class="now-playing-artist">Artista</div>
-                </div>
-            </div>
-
-            <div class="now-playing-center">
-                <div class="now-playing-controls">
-                    <button class="control-btn play-pause" id="playPauseBtn">
-                        <i class="fas fa-pause" id="playIcon"></i>
-                    </button>
-                </div>
-                <div class="now-playing-progress">
-                    <span id="currentTime" class="time">0:00</span>
-                    <div class="progress-bar" id="progressBarContainer">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <span id="duration" class="time">0:00</span>
-                </div>
-            </div>
-
-            <div class="now-playing-right">
-                <div class="volume-container">
-                    <i class="fas fa-volume-up volume-icon"></i>
-                    <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="70">
-                </div>
-            </div>
-        </div>
-
-        <!-- Background Play Notification -->
-        <div class="background-notification" id="backgroundNotification">
-            <i class="fas fa-play-circle"></i>
-            <span>Reproduzindo em background</span>
-        </div>
-
-        <!-- Install Prompt -->
-        <div class="install-prompt" id="installPrompt">
-            <p>Instalar MMJ Music para reprodução em background?</p>
-            <div class="install-buttons">
-                <button class="install-btn primary" id="installButton">Instalar</button>
-                <button class="install-btn secondary" id="dismissInstall">Agora não</button>
-            </div>
-        </div>
-
-        <!-- Hidden YouTube Player -->
-        <div id="youtubePlayer" style="display: none;"></div>
+    <div class="logo">MMJ MUSIC</div>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Buscar música...">
+        <button id="searchButton">Buscar</button>
     </div>
+    <div id="results"></div>
+    <div id="player">
+        <div id="nowPlaying">Tocando agora: <span id="songTitle"></span></div>
+        <!-- O elemento de áudio é ESSENCIAL -->
+        <audio id="audioPlayer" controls></audio>
+    </div>
+    <div id="status" class="status">Reproduzindo em background...</div>
 
     <script>
-        // 🔑 SUA CHAVE DA API
         const API_KEY = 'AIzaSyBe89OpBYTdOhjzL4eej7dLms7LJ_9sYg8';
-        
-        // Elementos DOM
-        const searchInput = document.getElementById('searchInput');
-        const searchButton = document.getElementById('searchButton');
-        const welcomeScreen = document.getElementById('welcomeScreen');
-        const loading = document.getElementById('loading');
-        const resultsGrid = document.getElementById('resultsGrid');
-        const nowPlayingBar = document.getElementById('nowPlayingBar');
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const playIcon = document.getElementById('playIcon');
-        const nowPlayingImage = document.getElementById('nowPlayingImage');
-        const nowPlayingTitle = document.getElementById('nowPlayingTitle');
-        const nowPlayingArtist = document.getElementById('nowPlayingArtist');
-        const progressFill = document.getElementById('progressFill');
-        const progressBarContainer = document.getElementById('progressBarContainer');
-        const currentTime = document.getElementById('currentTime');
-        const duration = document.getElementById('duration');
-        const volumeSlider = document.getElementById('volumeSlider');
-        const backgroundNotification = document.getElementById('backgroundNotification');
-        const installPrompt = document.getElementById('installPrompt');
-        const installButton = document.getElementById('installButton');
-        const dismissInstall = document.getElementById('dismissInstall');
-        
-        // Estado global
-        let youtubePlayer = null;
-        let currentSong = null;
-        let isPlaying = false;
-        let currentTimeValue = 0;
-        let durationValue = 0;
-        let progressInterval = null;
-        let deferredPrompt = null;
-        let isAppInstalled = false;
-        
-        // Service Worker registration
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(registration => {
-                    console.log('Service Worker registrado:', registration);
-                    
-                    // Verificar se o app já está instalado
-                    if (window.matchMedia('(display-mode: standalone)').matches) {
-                        isAppInstalled = true;
-                        console.log('App já instalado como PWA');
-                    }
-                })
-                .catch(error => {
-                    console.log('Falha ao registrar Service Worker:', error);
-                });
-        }
-        
-        // Inicializar YouTube Player
-        function initYouTubePlayer() {
-            const tag = document.createElement('script');
-            tag.src = 'https://www.youtube.com/iframe_api';
-            const firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-            
-            window.onYouTubeIframeAPIReady = function() {
-                youtubePlayer = new YT.Player('youtubePlayer', {
-                    height: '0',
-                    width: '0',
-                    playerVars: {
-                        'autoplay': 0,
-                        'controls': 0,
-                        'disablekb': 1,
-                        'fs': 0,
-                        'iv_load_policy': 3,
-                        'modestbranding': 1,
-                        'playsinline': 1,
-                        'rel': 0
-                    },
-                    events: {
-                        'onReady': onPlayerReady,
-                        'onStateChange': onPlayerStateChange,
-                        'onError': onPlayerError
-                    }
-                });
-            };
-        }
-        
-        // Buscar músicas
+        let currentAudio = document.getElementById('audioPlayer');
+
+        // 1. BUSCAR MÚSICAS (YouTube Data API)
         async function searchMusic(query) {
-            if (!query.trim()) return;
-            
-            welcomeScreen.style.display = 'none';
-            loading.style.display = 'block';
-            resultsGrid.style.display = 'none';
-            
-            try {
-                const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${encodeURIComponent(query + ' música official audio')}&type=video&key=${API_KEY}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                displayResults(data.items);
-            } catch (error) {
-                console.error('Erro na busca:', error);
-                resultsGrid.innerHTML = '<div style="text-align: center; padding: 40px; color: #b3b3b3;">Erro ao buscar músicas</div>';
-                resultsGrid.style.display = 'grid';
-            } finally {
-                loading.style.display = 'none';
-            }
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query + ' música')}&type=video&key=${API_KEY}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            showResults(data.items);
         }
-        
-        // Exibir resultados
-        function displayResults(items) {
-            resultsGrid.innerHTML = '';
-            resultsGrid.style.display = 'grid';
-            
-            items.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = 'music-card';
-                card.dataset.index = index;
-                
-                card.innerHTML = `
-                    <img src="${item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default.url}" 
-                         class="card-image" 
-                         alt="${item.snippet.title}"
-                         onerror="this.src='https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
-                    <div class="card-title">${item.snippet.title}</div>
-                    <div class="card-artist">${item.snippet.channelTitle}</div>
-                `;
-                
-                card.addEventListener('click', () => {
-                    playSong(item);
+        function showResults(items) {
+            const container = document.getElementById('results');
+            container.innerHTML = '';
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'music-item';
+                div.innerHTML = `<img src="${item.snippet.thumbnails.default.url}"><div><strong>${item.snippet.title}</strong><br><small>${item.snippet.channelTitle}</small></div>`;
+                div.onclick = () => playSong(item);
+                container.appendChild(div);
+            });
+        }
+
+        // 2. TOCAR MÚSICA (Elemento <audio> + Media Session API)
+        async function playSong(song) {
+            // A. Obter URL de áudio direto (via serviço proxy/publico - exemplo)
+            // EM PRODUÇÃO: Use um backend para extrair o áudio do YouTube.
+            const audioStreamUrl = await getAudioStreamUrl(song.id.videoId);
+
+            // B. Configurar e tocar no elemento <audio>
+            currentAudio.src = audioStreamUrl;
+            document.getElementById('player').style.display = 'block';
+            document.getElementById('songTitle').textContent = song.snippet.title;
+
+            // Inicia a reprodução
+            await currentAudio.play();
+
+            // C. CONFIGURAÇÃO CRÍTICA: Media Session API[citation:4]
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: song.snippet.title,
+                    artist: song.snippet.channelTitle,
+                    album: 'MMJ Music',
+                    artwork: [
+                        { src: song.snippet.thumbnails.default.url, sizes: '96x96', type: 'image/jpeg' }
+                    ]
                 });
-                
-                resultsGrid.appendChild(card);
-            });
-        }
-        
-        // Tocar música
-        function playSong(song) {
-            currentSong = song;
-            
-            // Atualizar UI
-            nowPlayingImage.src = song.snippet.thumbnails.medium?.url || song.snippet.thumbnails.default.url;
-            nowPlayingTitle.textContent = song.snippet.title;
-            nowPlayingArtist.textContent = song.snippet.channelTitle;
-            
-            // Mostrar now playing bar
-            nowPlayingBar.style.display = 'flex';
-            
-            // Destacar card atual
-            document.querySelectorAll('.music-card').forEach(card => {
-                card.classList.remove('playing');
-            });
-            const currentCard = document.querySelector(`.music-card[data-index="${song.index}"]`);
-            if (currentCard) {
-                currentCard.classList.add('playing');
-                currentCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // Conectar os botões de notificação/tela bloqueada
+                navigator.mediaSession.setActionHandler('play', () => currentAudio.play());
+                navigator.mediaSession.setActionHandler('pause', () => currentAudio.pause());
+                // Forçar o sistema a ver o estado como "playing"
+                navigator.mediaSession.playbackState = 'playing';
             }
-            
-            // Carregar e tocar no YouTube
-            if (youtubePlayer) {
-                youtubePlayer.loadVideoById(song.id.videoId);
-                setTimeout(() => {
-                    youtubePlayer.playVideo();
-                }, 500);
-            }
-            
-            // Configurar Media Session API
-            setupMediaSession(song);
-            
-            // Mostrar notificação de background
-            if (isAppInstalled) {
-                showBackgroundNotification();
-            }
+
+            showStatus('Tocando em background...');
         }
-        
-        // Media Session API
-        function setupMediaSession(song) {
-            if (!('mediaSession' in navigator)) return;
-            
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: song.snippet.title,
-                artist: song.snippet.channelTitle,
-                album: 'MMJ Music',
-                artwork: [
-                    { src: song.snippet.thumbnails.default.url, sizes: '96x96', type: 'image/jpeg' },
-                    { src: song.snippet.thumbnails.medium.url, sizes: '128x128', type: 'image/jpeg' },
-                    { src: song.snippet.thumbnails.high.url, sizes: '192x192', type: 'image/jpeg' }
-                ]
-            });
-            
-            // Configurar ações
-            navigator.mediaSession.setActionHandler('play', () => {
-                if (youtubePlayer) youtubePlayer.playVideo();
-            });
-            
-            navigator.mediaSession.setActionHandler('pause', () => {
-                if (youtubePlayer) youtubePlayer.pauseVideo();
-            });
+
+        // 3. Função para obter stream de áudio (SIMPLIFICADA)
+        async function getAudioStreamUrl(videoId) {
+            // ATENÇÃO: Esta é uma solução simplificada para demonstração.
+            // O YouTube não oferece URLs de áudio diretos pela sua API pública.
+            // Em um projeto real, você precisa de um backend próprio para extrair e servir o áudio.
+            // Exemplo de endpoint de um serviço público (pode parar de funcionar):
+            return `https://corsproxy.io/?https://www.youtube.com/watch?v=${videoId}`;
         }
-        
-        // Eventos do YouTube Player
-        function onPlayerReady(event) {
-            console.log('YouTube Player pronto');
-            event.target.setVolume(volumeSlider.value);
-            
-            // Solicitar permissão para background play
-            if (!isAppInstalled) {
-                setTimeout(showInstallPrompt, 3000);
-            }
+
+        // 4. Mostrar status
+        function showStatus(text) {
+            const status = document.getElementById('status');
+            status.textContent = text;
+            status.style.display = 'block';
+            setTimeout(() => status.style.display = 'none', 3000);
         }
-        
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.PLAYING) {
-                isPlaying = true;
-                playIcon.className = 'fas fa-pause';
-                startProgressUpdater();
-                
-                // Atualizar Media Session
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.playbackState = 'playing';
-                }
-                
-                // Enviar para Service Worker
-                if (navigator.serviceWorker.controller) {
-                    navigator.serviceWorker.controller.postMessage({
-                        type: 'PLAYBACK_START',
-                        song: currentSong?.snippet.title
-                    });
-                }
-                
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                isPlaying = false;
-                playIcon.className = 'fas fa-play';
-                stopProgressUpdater();
-                
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.playbackState = 'paused';
-                }
-                
-            } else if (event.data === YT.PlayerState.ENDED) {
-                console.log('Música terminou');
-            }
-        }
-        
-        function onPlayerError(event) {
-            console.error('Erro no player:', event.data);
-        }
-        
-        // Controles
-        function togglePlayPause() {
-            if (!youtubePlayer) return;
-            
-            if (isPlaying) {
-                youtubePlayer.pauseVideo();
-            } else {
-                youtubePlayer.playVideo();
-            }
-        }
-        
-        // Barra de progresso
-        function startProgressUpdater() {
-            stopProgressUpdater();
-            progressInterval = setInterval(updateProgress, 1000);
-        }
-        
-        function stopProgressUpdater() {
-            if (progressInterval) {
-                clearInterval(progressInterval);
-            }
-        }
-        
-        function updateProgress() {
-            if (!youtubePlayer || !isPlaying) return;
-            
-            try {
-                currentTimeValue = youtubePlayer.getCurrentTime();
-                durationValue = youtubePlayer.getDuration();
-                
-                if (durationValue > 0) {
-                    const percent = (currentTimeValue / durationValue) * 100;
-                    progressFill.style.width = percent + '%';
-                    
-                    currentTime.textContent = formatTime(currentTimeValue);
-                    duration.textContent = formatTime(durationValue);
-                }
-            } catch (e) {
-                console.log('Erro ao atualizar progresso:', e);
-            }
-        }
-        
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        }
-        
-        // Notificação de background
-        function showBackgroundNotification() {
-            backgroundNotification.style.display = 'flex';
-            setTimeout(() => {
-                backgroundNotification.style.display = 'none';
-            }, 3000);
-        }
-        
-        // Install Prompt
-        function showInstallPrompt() {
-            if (!deferredPrompt || isAppInstalled) return;
-            installPrompt.style.display = 'flex';
-        }
-        
+
         // Event Listeners
-        window.addEventListener('load', () => {
-            initYouTubePlayer();
-            
-            // Focus no input de busca
-            searchInput.focus();
-        });
-        
-        searchButton.addEventListener('click', () => {
-            const query = searchInput.value.trim();
+        document.getElementById('searchButton').onclick = () => {
+            const query = document.getElementById('searchInput').value;
             if (query) searchMusic(query);
-        });
-        
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = searchInput.value.trim();
-                if (query) searchMusic(query);
-            }
-        });
-        
-        playPauseBtn.addEventListener('click', togglePlayPause);
-        
-        progressBarContainer.addEventListener('click', (e) => {
-            if (!youtubePlayer || !durationValue) return;
-            
-            const rect = progressBarContainer.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            const newTime = percent * durationValue;
-            
-            youtubePlayer.seekTo(newTime, true);
-        });
-        
-        volumeSlider.addEventListener('input', (e) => {
-            if (youtubePlayer) {
-                youtubePlayer.setVolume(e.target.value);
-            }
-        });
-        
-        // PWA Installation
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            if (!isAppInstalled) {
-                setTimeout(showInstallPrompt, 5000);
-            }
-        });
-        
-        installButton.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            
-            if (outcome === 'accepted') {
-                isAppInstalled = true;
-                console.log('Usuário instalou o PWA');
-            }
-            
-            deferredPrompt = null;
-            installPrompt.style.display = 'none';
-        });
-        
-        dismissInstall.addEventListener('click', () => {
-            installPrompt.style.display = 'none';
-        });
-        
-        // Detectar app instalado
-        window.addEventListener('appinstalled', () => {
-            isAppInstalled = true;
-            console.log('PWA instalado');
-        });
-        
-        // Manter o service worker vivo
-        setInterval(() => {
-            if (navigator.serviceWorker.controller && isPlaying) {
-                navigator.serviceWorker.controller.postMessage('keepAlive');
-            }
-        }, 15000);
+        };
+        document.getElementById('searchInput').onkeypress = (e) => {
+            if (e.key === 'Enter') document.getElementById('searchButton').click();
+        };
+
+        // 5. Registrar Service Worker para o PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker registrado para background play.'))
+                .catch(err => console.log('Erro SW:', err));
+        }
+        // Detectar se está rodando como PWA instalado
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('MMJ Music rodando como PWA instalado.');
+        }
     </script>
 </body>
 </html>
