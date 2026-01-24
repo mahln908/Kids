@@ -1,21 +1,118 @@
 {
-    "name": "MMJ Music",
-    "short_name": "MMJ Music",
-    "description": "Player de música com integração do YouTube",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#0f0f0f",
-    "theme_color": "#FF0000",
-    "icons": [
+  "name": "MMJ Music",
+  "short_name": "MMJ Music",
+  "description": "Player de música estilo Spotify com reprodução em background",
+  "start_url": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay"],
+  "background_color": "#000000",
+  "theme_color": "#1DB954",
+  "orientation": "portrait",
+  "categories": ["music", "entertainment"],
+  "scope": "/",
+  "id": "/",
+  "lang": "pt-BR",
+  
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/725/725281.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/725/725281.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/725/725281.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/725/725281.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/725/725281.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/725/725281.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/725/725281.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/725/725281.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  
+  "screenshots": [
+    {
+      "src": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Player de música MMJ Music"
+    }
+  ],
+  
+  "shortcuts": [
+    {
+      "name": "Buscar Música",
+      "short_name": "Buscar",
+      "description": "Buscar novas músicas",
+      "url": "/?source=shortcut-search",
+      "icons": [
         {
-            "src": "https://cdn-icons-png.flaticon.com/512/725/725281.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "https://cdn-icons-png.flaticon.com/512/725/725281.png",
-            "sizes": "512x512",
-            "type": "image/png"
+          "src": "https://cdn-icons-png.flaticon.com/512/54/54481.png",
+          "sizes": "96x96"
         }
-    ]
+      ]
+    }
+  ],
+  
+  "protocol_handlers": [
+    {
+      "protocol": "web+mmjmusic",
+      "url": "/?play=%s"
+    }
+  ],
+  
+  "share_target": {
+    "action": "/share",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://sua-url-aqui.com/manifest.json"
+    }
+  ],
+  
+  "prefer_related_applications": false
 }
