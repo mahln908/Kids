@@ -1,1 +1,946 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMJ Music - Seu Player de Música</title>
+    <meta name="theme-color" content="#FF0000">
+    <!-- Manifest para PWA -->
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --primary: #FF0000;
+            --primary-dark: #CC0000;
+            --dark: #0f0f0f;
+            --dark-light: #272727;
+            --light: #f1f1f1;
+            --gray: #717171;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+        }
+
+        /* Página 1: Busca */
+        .search-page {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 40px auto;
+            position: relative;
+        }
+
+        .search-box {
+            display: flex;
+            background: var(--dark-light);
+            border-radius: 40px;
+            overflow: hidden;
+            border: 2px solid #303030;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary);
+        }
+
+        #searchInput {
+            flex: 1;
+            padding: 18px 25px;
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+
+        #searchButton {
+            padding: 0 30px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        #searchButton:hover {
+            background: var(--primary-dark);
+        }
+
+        .results-container {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .music-card {
+            background: var(--dark-light);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        .music-card:hover {
+            transform: translateY(-5px);
+            background: #303030;
+        }
+
+        .card-thumbnail {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .card-info {
+            padding: 15px;
+        }
+
+        .card-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .card-channel {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Página 2: Player */
+        .player-page {
+            display: none;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #000 0%, #1a1a1a 100%);
+        }
+
+        .player-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #303030;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .player-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .album-art-large {
+            width: 300px;
+            height: 300px;
+            border-radius: 20px;
+            object-fit: cover;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .song-info {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .song-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .song-artist {
+            font-size: 1.2rem;
+            color: var(--gray);
+        }
+
+        .player-controls {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: #303030;
+            border-radius: 3px;
+            margin: 30px 0;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            border-radius: 3px;
+            transition: width 0.1s;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-top: 10px;
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .play-btn {
+            background: var(--primary);
+            width: 70px;
+            height: 70px;
+            font-size: 1.8rem;
+        }
+
+        .play-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Mini Player */
+        .mini-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #303030;
+            padding: 15px;
+            display: none;
+            align-items: center;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .mini-album-art {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .mini-info {
+            flex: 1;
+        }
+
+        .mini-title {
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: white;
+        }
+
+        .mini-artist {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .mini-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mini-control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .mini-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #303030;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Notification Player */
+        .notification-player {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            width: 350px;
+            border: 1px solid #303030;
+            z-index: 1001;
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .notification-title {
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notification-album-art {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .notification-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .notification-btn {
+            flex: 1;
+            padding: 10px;
+            background: #303030;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .notification-btn:hover {
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Página 1: Busca -->
+    <div class="search-page" id="searchPage">
+        <div class="header">
+            <div class="logo">MMJ MUSIC</div>
+            <div class="tagline">Encontre e ouça suas músicas favoritas</div>
+        </div>
+
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Buscar música, artista ou álbum...">
+                <button id="searchButton">Buscar</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Buscando músicas...</p>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <!-- Resultados aparecerão aqui -->
+        </div>
+    </div>
+
+    <!-- Página 2: Player -->
+    <div class="player-page" id="playerPage">
+        <div class="player-header">
+            <button class="back-button" id="backButton">
+                ← Voltar
+            </button>
+            <div class="logo" style="font-size: 2rem;">MMJ MUSIC</div>
+        </div>
+
+        <div class="player-content">
+            <img id="albumArtLarge" src="" alt="Album Art" class="album-art-large">
+            
+            <div class="song-info">
+                <h1 id="songTitle">Título da Música</h1>
+                <p id="songArtist">Artista</p>
+            </div>
+
+            <div class="player-controls">
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="time-display">
+                    <span id="currentTime">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+
+                <div class="control-buttons">
+                    <button class="control-btn" id="prevBtn">
+                        <span style="font-size: 1.8rem;">⏮</span>
+                    </button>
+                    <button class="control-btn play-btn" id="playPauseBtn">
+                        <span id="playIcon">▶</span>
+                    </button>
+                    <button class="control-btn" id="nextBtn">
+                        <span style="font-size: 1.8rem;">⏭</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mini Player -->
+    <div class="mini-player" id="miniPlayer">
+        <img id="miniAlbumArt" src="" alt="Album Art" class="mini-album-art">
+        <div class="mini-info">
+            <div class="mini-title" id="miniTitle">Título</div>
+            <div class="mini-artist" id="miniArtist">Artista</div>
+        </div>
+        <div class="mini-controls">
+            <button class="mini-control-btn" id="miniPlayPauseBtn">
+                <span id="miniPlayIcon">▶</span>
+            </button>
+            <button class="mini-close" id="closeMiniPlayer">✕</button>
+        </div>
+    </div>
+
+    <!-- Notification Player -->
+    <div class="notification-player" id="notificationPlayer">
+        <div class="notification-header">
+            <div class="notification-title">Tocando Agora</div>
+            <button class="notification-close" id="closeNotification">✕</button>
+        </div>
+        <div class="notification-content">
+            <img id="notificationAlbumArt" src="" alt="Album Art" class="notification-album-art">
+            <div class="notification-info">
+                <div class="notification-song-title" id="notificationSongTitle">Título da Música</div>
+                <div class="notification-song-artist" id="notificationSongArtist">Artista</div>
+            </div>
+        </div>
+        <div class="notification-controls">
+            <button class="notification-btn" id="notificationPrevBtn">Anterior</button>
+            <button class="notification-btn" id="notificationPlayPauseBtn">Pausar</button>
+            <button class="notification-btn" id="notificationNextBtn">Próxima</button>
+        </div>
+    </div>
+
+    <!-- YouTube Player (Hidden) -->
+    <div id="youtubePlayer" style="display: none;"></div>
+
+    <script>
+        // 🔑 SUA CHAVE DA API
+        const API_KEY = 'AIzaSyBe89OpBYTdOhjzL4eej7dLms7LJ_9sYg8';
+        
+        // Elementos DOM
+        const searchPage = document.getElementById('searchPage');
+        const playerPage = document.getElementById('playerPage');
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const loading = document.getElementById('loading');
+        const backButton = document.getElementById('backButton');
+        
+        // Player elements
+        const albumArtLarge = document.getElementById('albumArtLarge');
+        const songTitle = document.getElementById('songTitle');
+        const songArtist = document.getElementById('songArtist');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playIcon = document.getElementById('playIcon');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+        
+        // Mini player elements
+        const miniPlayer = document.getElementById('miniPlayer');
+        const miniAlbumArt = document.getElementById('miniAlbumArt');
+        const miniTitle = document.getElementById('miniTitle');
+        const miniArtist = document.getElementById('miniArtist');
+        const miniPlayPauseBtn = document.getElementById('miniPlayPauseBtn');
+        const miniPlayIcon = document.getElementById('miniPlayIcon');
+        const closeMiniPlayer = document.getElementById('closeMiniPlayer');
+        
+        // Notification player elements
+        const notificationPlayer = document.getElementById('notificationPlayer');
+        const notificationAlbumArt = document.getElementById('notificationAlbumArt');
+        const notificationSongTitle = document.getElementById('notificationSongTitle');
+        const notificationSongArtist = document.getElementById('notificationSongArtist');
+        const notificationPlayPauseBtn = document.getElementById('notificationPlayPauseBtn');
+        const notificationPrevBtn = document.getElementById('notificationPrevBtn');
+        const notificationNextBtn = document.getElementById('notificationNextBtn');
+        const closeNotification = document.getElementById('closeNotification');
+        
+        // Estado global
+        let youtubePlayer;
+        let currentSong = null;
+        let searchResults = [];
+        let isPlaying = false;
+        let currentTime = 0;
+        let duration = 0;
+        let progressInterval;
+        
+        // 1. INICIALIZAR PLAYER DO YOUTUBE
+        function initYouTubePlayer() {
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            
+            window.onYouTubeIframeAPIReady = function() {
+                youtubePlayer = new YT.Player('youtubePlayer', {
+                    height: '0',
+                    width: '0',
+                    playerVars: {
+                        'autoplay': 0,
+                        'controls': 0,
+                        'disablekb': 1,
+                        'fs': 0,
+                        'iv_load_policy': 3,
+                        'modestbranding': 1,
+                        'playsinline': 1
+                    },
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange,
+                        'onError': onPlayerError
+                    }
+                });
+            };
+        }
+        
+        // 2. BUSCAR MÚSICAS
+        async function searchMusic(query) {
+            if (!query.trim()) return;
+            
+            loading.style.display = 'block';
+            resultsContainer.innerHTML = '';
+            
+            try {
+                const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query + ' música official audio')}&type=video&key=${API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                searchResults = data.items;
+                displayResults(data.items);
+            } catch (error) {
+                console.error('Erro na busca:', error);
+                resultsContainer.innerHTML = '<p style="color: #ff4444; text-align: center;">Erro ao buscar músicas</p>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+        
+        function displayResults(items) {
+            resultsContainer.innerHTML = '';
+            
+            items.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'music-card';
+                card.innerHTML = `
+                    <img src="${item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default.url}" 
+                         class="card-thumbnail" 
+                         alt="${item.snippet.title}"
+                         onerror="this.src='https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                    <div class="card-info">
+                        <div class="card-title">${item.snippet.title}</div>
+                        <div class="card-channel">${item.snippet.channelTitle}</div>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => {
+                    playSong(item);
+                    openPlayerPage();
+                });
+                
+                resultsContainer.appendChild(card);
+            });
+        }
+        
+        // 3. TOCAR MÚSICA
+        function playSong(song) {
+            currentSong = song;
+            
+            // Atualizar elementos visuais
+            albumArtLarge.src = song.snippet.thumbnails.high?.url || song.snippet.thumbnails.medium?.url;
+            songTitle.textContent = song.snippet.title;
+            songArtist.textContent = song.snippet.channelTitle;
+            
+            // Atualizar mini player
+            miniAlbumArt.src = song.snippet.thumbnails.default?.url;
+            miniTitle.textContent = song.snippet.title;
+            miniArtist.textContent = song.snippet.channelTitle;
+            
+            // Atualizar notification player
+            notificationAlbumArt.src = song.snippet.thumbnails.default?.url;
+            notificationSongTitle.textContent = song.snippet.title;
+            notificationSongArtist.textContent = song.snippet.channelTitle;
+            
+            // Carregar no player do YouTube
+            if (youtubePlayer && youtubePlayer.loadVideoById) {
+                youtubePlayer.loadVideoById(song.id.videoId);
+                
+                // Iniciar reprodução após um breve delay
+                setTimeout(() => {
+                    youtubePlayer.playVideo();
+                    isPlaying = true;
+                    updatePlayPauseButtons();
+                }, 500);
+            }
+            
+            // Configurar Media Session API
+            setupMediaSession(song);
+            
+            // Mostrar mini player
+            miniPlayer.style.display = 'flex';
+            
+            // Mostrar notification player
+            showNotificationPlayer();
+        }
+        
+        // 4. MEDIA SESSION API (BARRA DE NOTIFICAÇÃO FUNCIONAL)
+        function setupMediaSession(song) {
+            if (!('mediaSession' in navigator)) {
+                console.log('Media Session API não suportada');
+                return;
+            }
+            
+            // Definir metadados
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: song.snippet.title,
+                artist: song.snippet.channelTitle,
+                album: 'MMJ Music',
+                artwork: [
+                    { src: song.snippet.thumbnails.default.url, sizes: '96x96', type: 'image/jpeg' },
+                    { src: song.snippet.thumbnails.medium.url, sizes: '128x128', type: 'image/jpeg' },
+                    { src: song.snippet.thumbnails.high.url, sizes: '192x192', type: 'image/jpeg' }
+                ]
+            });
+            
+            // Ações da barra de notificação
+            const actionHandlers = [
+                ['play', () => {
+                    if (youtubePlayer) {
+                        youtubePlayer.playVideo();
+                        isPlaying = true;
+                        updatePlayPauseButtons();
+                    }
+                }],
+                ['pause', () => {
+                    if (youtubePlayer) {
+                        youtubePlayer.pauseVideo();
+                        isPlaying = false;
+                        updatePlayPauseButtons();
+                    }
+                }],
+                ['previoustrack', () => {
+                    // Implementar lógica para música anterior
+                    console.log('Previous track requested');
+                }],
+                ['nexttrack', () => {
+                    // Implementar lógica para próxima música
+                    console.log('Next track requested');
+                }],
+                ['seekbackward', (details) => {
+                    if (youtubePlayer) {
+                        const newTime = Math.max(youtubePlayer.getCurrentTime() - (details.seekOffset || 10), 0);
+                        youtubePlayer.seekTo(newTime, true);
+                    }
+                }],
+                ['seekforward', (details) => {
+                    if (youtubePlayer) {
+                        const newTime = Math.min(youtubePlayer.getCurrentTime() + (details.seekOffset || 10), youtubePlayer.getDuration());
+                        youtubePlayer.seekTo(newTime, true);
+                    }
+                }]
+            ];
+            
+            // Configurar handlers
+            for (const [action, handler] of actionHandlers) {
+                try {
+                    navigator.mediaSession.setActionHandler(action, handler);
+                } catch (error) {
+                    console.log(`Ação "${action}" não suportada: ${error.message}`);
+                }
+            }
+            
+            // Atualizar estado de reprodução
+            navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+        }
+        
+        // 5. EVENTOS DO PLAYER DO YOUTUBE
+        function onPlayerReady(event) {
+            console.log('YouTube Player pronto');
+            // Iniciar com volume médio
+            event.target.setVolume(70);
+        }
+        
+        function onPlayerStateChange(event) {
+            console.log('Estado do player:', event.data);
+            
+            if (event.data === YT.PlayerState.PLAYING) {
+                isPlaying = true;
+                updatePlayPauseButtons();
+                startProgressUpdater();
+                
+                // Atualizar Media Session
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.playbackState = 'playing';
+                }
+                
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                isPlaying = false;
+                updatePlayPauseButtons();
+                stopProgressUpdater();
+                
+                // Atualizar Media Session
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.playbackState = 'paused';
+                }
+                
+            } else if (event.data === YT.PlayerState.ENDED) {
+                console.log('Música terminou');
+                // Aqui você pode implementar autoplay da próxima música
+            }
+        }
+        
+        function onPlayerError(event) {
+            console.error('Erro no player:', event.data);
+            alert('Erro ao reproduzir esta música. Tente outra.');
+        }
+        
+        // 6. CONTROLES DE REPRODUÇÃO
+        function togglePlayPause() {
+            if (!youtubePlayer) return;
+            
+            if (isPlaying) {
+                youtubePlayer.pauseVideo();
+            } else {
+                youtubePlayer.playVideo();
+            }
+        }
+        
+        function updatePlayPauseButtons() {
+            if (isPlaying) {
+                playIcon.textContent = '⏸';
+                miniPlayIcon.textContent = '⏸';
+                notificationPlayPauseBtn.textContent = 'Pausar';
+            } else {
+                playIcon.textContent = '▶';
+                miniPlayIcon.textContent = '▶';
+                notificationPlayPauseBtn.textContent = 'Tocar';
+            }
+        }
+        
+        // 7. BARRA DE PROGRESSO
+        function startProgressUpdater() {
+            stopProgressUpdater();
+            progressInterval = setInterval(updateProgress, 1000);
+        }
+        
+        function stopProgressUpdater() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+        }
+        
+        function updateProgress() {
+            if (!youtubePlayer || !isPlaying) return;
+            
+            try {
+                currentTime = youtubePlayer.getCurrentTime();
+                duration = youtubePlayer.getDuration();
+                
+                if (duration > 0) {
+                    const percent = (currentTime / duration) * 100;
+                    progressBar.style.width = percent + '%';
+                    
+                    currentTimeEl.textContent = formatTime(currentTime);
+                    durationEl.textContent = formatTime(duration);
+                }
+            } catch (e) {
+                console.log('Erro ao atualizar progresso:', e);
+            }
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        function seekToPosition(e) {
+            if (!youtubePlayer || !duration) return;
+            
+            const rect = progressContainer.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            const newTime = percent * duration;
+            
+            youtubePlayer.seekTo(newTime, true);
+        }
+        
+        // 8. NAVEGAÇÃO ENTRE PÁGINAS
+        function openPlayerPage() {
+            searchPage.style.display = 'none';
+            playerPage.style.display = 'block';
+        }
+        
+        function closePlayerPage() {
+            playerPage.style.display = 'none';
+            searchPage.style.display = 'block';
+        }
+        
+        function showNotificationPlayer() {
+            notificationPlayer.style.display = 'block';
+            
+            // Auto-esconder após 10 segundos
+            setTimeout(() => {
+                if (notificationPlayer.style.display === 'block') {
+                    notificationPlayer.style.display = 'none';
+                }
+            }, 10000);
+        }
+        
+        // 9. EVENT LISTENERS
+        searchButton.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            if (query) searchMusic(query);
+        });
+        
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = searchInput.value.trim();
+                if (query) searchMusic(query);
+            }
+        });
+        
+        backButton.addEventListener('click', closePlayerPage);
+        
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        miniPlayPauseBtn.addEventListener('click', togglePlayPause);
+        notificationPlayPauseBtn.addEventListener('click', togglePlayPause);
+        
+        progressContainer.addEventListener('click', seekToPosition);
+        
+        closeMiniPlayer.addEventListener('click', () => {
+            miniPlayer.style.display = 'none';
+        });
+        
+        closeNotification.addEventListener('click', () => {
+            notificationPlayer.style.display = 'none';
+        });
+        
+        // 10. INICIALIZAÇÃO
+        window.addEventListener('load', () => {
+            initYouTubePlayer();
+            
+            // Busca inicial de exemplo
+            searchMusic('música 2024');
+        });
+        
+        // 11. SERVICE WORKER PARA REPRODUÇÃO EM SEGUNDO PLANO
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker registrado:', registration);
+                })
+                .catch(error => {
+                    console.log('Falha ao registrar Service Worker:', error);
+                });
+        }
+    </script>
+</body>
+</html>
