@@ -7,6 +7,7 @@
   "background_color": "#0f0f0f",
   "theme_color": "#1DB954",
   "orientation": "portrait",
+  "categories": ["music", "entertainment"],
   "icons": [
     {
       "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+DQogIDxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMjQwIiBmaWxsPSIjMURCOTU0Ii8+DQogIDxyZWN0IHg9IjE1MCIgeT0iMTYwIiB3aWR0aD0iMjEwIiBoZWlnaHQ9IjE4MCIgcng9IjI1IiBmaWxsPSIjMkQyRDJEIiBzdHJva2U9IiNGRkYiIHN0cm9rZS13aWR0aD0iNiIvPg0KICA8dGV4dCB4PSIyNTYiIHk9IjQ0MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI0ZGRiIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjMyIiBmb250LXdlaWdodD0iYm9sZCI+UsOERElPIEdPU1BFTDwvdGV4dD4NCiAgPHRleHQgeD0iMjU2IiB5PSI0NzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxRUQ3NjAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCI+TElUT1JBTDwvdGV4dD4NCjwvc3ZnPg==",
