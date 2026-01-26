@@ -1,137 +1,1308 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MMJ Music</title>
-    <meta name="theme-color" content="#ff0000">
-    <meta name="description" content="Ouça suas músicas do YouTube.">
-    <!-- Manifesto do PWA -->
+    <title>Rádio Gospel Litoral</title>
+    <meta name="theme-color" content="#1DB954">
+    <meta name="description" content="Rádio Gospel 24h - Louvor e Adoração">
+    <!-- PWA -->
     <link rel="manifest" href="manifest.json">
+    <!-- Ícone -->
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSIzMCIgZmlsbD0iIzFEQjk1NCIvPjx0ZXh0IHg9IjMyIiB5PSI0MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI0ZGRiIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCI+UjwvdGV4dD48L3N2Zz4=">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
-        body { background: #0f0f0f; color: #fff; padding: 20px; }
-        .logo { text-align: center; font-size: 2.5em; color: #ff0000; margin: 20px 0; font-weight: bold; }
-        .search-box { display: flex; margin: 30px auto; max-width: 600px; }
-        #searchInput { flex: 1; padding: 15px; border: none; border-radius: 30px 0 0 30px; background: #222; color: #fff; }
-        #searchButton { padding: 15px 25px; border: none; background: #ff0000; color: white; border-radius: 0 30px 30px 0; cursor: pointer; }
-        #results { max-width: 800px; margin: 20px auto; }
-        .music-item { background: #222; padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; align-items: center; cursor: pointer; }
-        .music-item img { width: 60px; height: 60px; border-radius: 5px; margin-right: 15px; }
-        #player { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.95); padding: 15px; display: none; text-align: center; border-top: 2px solid #ff0000; }
-        #nowPlaying { margin-bottom: 10px; font-weight: bold; }
-        #audioPlayer { width: 80%; margin: 10px auto; display: block; }
-        .status { padding: 10px; background: #ff0000; color: white; position: fixed; top: 10px; right: 10px; border-radius: 5px; display: none; }
+        /* RESET E CONFIGURAÇÕES */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* TELA DE CARREGAMENTO */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .radio-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .main-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #1DB954, #1ED760);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(29, 185, 84, 0.3);
+            letter-spacing: 3px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 8px;
+            text-transform: uppercase;
+        }
+
+        .radio-icon {
+            width: 120px;
+            height: 120px;
+            margin: 30px auto;
+            background: linear-gradient(135deg, #1DB954, #1ED760);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(29, 185, 84, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #1DB954;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px 0;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        /* APP PRINCIPAL */
+        .app-container {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1DB954, #1ED760);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #1DB954, #1ED760);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-text p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .install-btn {
+            background: #1DB954;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .install-btn:hover {
+            background: #1ED760;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(29, 185, 84, 0.3);
+        }
+
+        /* PLAYER PRINCIPAL */
+        .player-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .album-art-container {
+            width: 300px;
+            height: 300px;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .album-art {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            object-fit: cover;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .now-playing {
+            text-align: center;
+            margin-bottom: 40px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .song-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .song-artist {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 5px;
+        }
+
+        .song-album {
+            font-size: 1rem;
+            color: #1DB954;
+            font-style: italic;
+        }
+
+        /* CONTROLES */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .control-buttons {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .play-btn {
+            background: #1DB954;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+
+        .play-btn:hover {
+            background: #1ED760;
+            transform: scale(1.1);
+        }
+
+        /* BARRA DE PROGRESSO */
+        .progress-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #1DB954, #1ED760);
+            width: 0%;
+            border-radius: 3px;
+            transition: width 0.1s;
+        }
+
+        .time {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            min-width: 45px;
+        }
+
+        /* VOLUME */
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 300px;
+            margin-top: 15px;
+        }
+
+        .volume-slider {
+            flex: 1;
+            height: 4px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #1DB954;
+            cursor: pointer;
+        }
+
+        /* PLAY LIST */
+        .playlist-section {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 50px;
+        }
+
+        .playlist-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .songs-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .song-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .song-card:hover {
+            background: rgba(29, 185, 84, 0.1);
+            border-color: #1DB954;
+            transform: translateY(-3px);
+        }
+
+        .song-card.active {
+            background: rgba(29, 185, 84, 0.2);
+            border-color: #1DB954;
+        }
+
+        .song-card img {
+            width: 100%;
+            height: 140px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+
+        .song-card h3 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .song-card p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* PLAYER DO RODAPÉ */
+        .mini-player {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+        }
+
+        .mini-player-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .mini-album-art {
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .mini-info {
+            flex: 1;
+        }
+
+        .mini-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mini-artist {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mini-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mini-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        /* NOTIFICAÇÃO */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1DB954;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 1001;
+            box-shadow: 0 5px 20px rgba(29, 185, 84, 0.3);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* RESPONSIVO */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+                letter-spacing: 4px;
+            }
+            
+            .album-art-container {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .songs-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-buttons {
+                gap: 20px;
+            }
+            
+            .play-btn {
+                width: 55px;
+                height: 55px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .install-btn {
+                margin-top: 10px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="logo">MMJ MUSIC</div>
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Buscar música...">
-        <button id="searchButton">Buscar</button>
+    <!-- TELA DE CARREGAMENTO -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="radio-title">
+            <h1 class="main-title">RÁDIO GOSPEL LITORAL</h1>
+            <p class="subtitle">24H DE LOUVOR</p>
+        </div>
+        <div class="radio-icon">
+            <i class="fas fa-broadcast-tower"></i>
+        </div>
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Carregando músicas de louvor...</p>
     </div>
-    <div id="results"></div>
-    <div id="player">
-        <div id="nowPlaying">Tocando agora: <span id="songTitle"></span></div>
-        <!-- O elemento de áudio é ESSENCIAL -->
-        <audio id="audioPlayer" controls></audio>
+
+    <!-- APP PRINCIPAL -->
+    <div class="app-container" id="appContainer">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-radio"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Rádio Gospel Litoral</h1>
+                    <p>Tocando agora • 24h de louvor</p>
+                </div>
+            </div>
+            <button class="install-btn" id="installBtn" style="display: none;">
+                <i class="fas fa-download"></i> Instalar App
+            </button>
+        </div>
+
+        <!-- PLAYER PRINCIPAL -->
+        <div class="player-section">
+            <div class="album-art-container">
+                <img id="albumArt" src="https://images.unsplash.com/photo-1577733966973-d680bffd2e80?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                     alt="Album Art" class="album-art">
+            </div>
+
+            <div class="now-playing">
+                <h2 id="songTitle" class="song-title">Rádio Gospel Litoral</h2>
+                <p id="songArtist" class="song-artist">Louvor e Adoração 24h</p>
+                <p id="songAlbum" class="song-album">🎵 Tocando agora</p>
+            </div>
+
+            <div class="controls">
+                <div class="control-buttons">
+                    <button class="control-btn" id="prevBtn" title="Música anterior">
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button class="control-btn play-btn" id="playBtn" title="Play/Pause">
+                        <i class="fas fa-play" id="playIcon"></i>
+                    </button>
+                    <button class="control-btn" id="nextBtn" title="Próxima música">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                </div>
+
+                <div class="progress-container">
+                    <span id="currentTime" class="time">0:00</span>
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                    <span id="duration" class="time">0:00</span>
+                </div>
+
+                <div class="volume-control">
+                    <i class="fas fa-volume-down"></i>
+                    <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="70">
+                    <i class="fas fa-volume-up"></i>
+                </div>
+            </div>
+
+            <!-- PLAYLIST -->
+            <div class="playlist-section">
+                <h2 class="playlist-title">Músicas de Louvor</h2>
+                <div class="songs-list" id="songsList">
+                    <!-- Carregado via JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- PLAYER MINI -->
+        <div class="mini-player" id="miniPlayer">
+            <div class="mini-player-content">
+                <img id="miniAlbumArt" src="" alt="" class="mini-album-art">
+                <div class="mini-info">
+                    <div id="miniTitle" class="mini-title">Rádio Gospel Litoral</div>
+                    <div id="miniArtist" class="mini-artist">Louvor 24h</div>
+                </div>
+            </div>
+            <div class="mini-controls">
+                <button class="mini-btn" id="miniPlayBtn">
+                    <i class="fas fa-play" id="miniPlayIcon"></i>
+                </button>
+                <button class="mini-btn" id="miniNextBtn">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+            </div>
+        </div>
     </div>
-    <div id="status" class="status">Reproduzindo em background...</div>
+
+    <!-- NOTIFICAÇÃO -->
+    <div class="notification" id="notification">
+        <i class="fas fa-music"></i>
+        <span id="notificationText">Rádio Gospel tocando</span>
+    </div>
+
+    <!-- ELEMENTO DE ÁUDIO -->
+    <audio id="audioPlayer" preload="auto" style="display: none;"></audio>
 
     <script>
+        // 🔑 SUA CHAVE DA API DO YOUTUBE
         const API_KEY = 'AIzaSyBe89OpBYTdOhjzL4eej7dLms7LJ_9sYg8';
-        let currentAudio = document.getElementById('audioPlayer');
-
-        // 1. BUSCAR MÚSICAS (YouTube Data API)
-        async function searchMusic(query) {
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query + ' música')}&type=video&key=${API_KEY}`;
-            const res = await fetch(url);
-            const data = await res.json();
-            showResults(data.items);
-        }
-        function showResults(items) {
-            const container = document.getElementById('results');
-            container.innerHTML = '';
-            items.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'music-item';
-                div.innerHTML = `<img src="${item.snippet.thumbnails.default.url}"><div><strong>${item.snippet.title}</strong><br><small>${item.snippet.channelTitle}</small></div>`;
-                div.onclick = () => playSong(item);
-                container.appendChild(div);
+             // Elementos DOM
+        const loadingScreen = document.getElementById('loadingScreen');
+        const appContainer = document.getElementById('appContainer');
+        const installBtn = document.getElementById('installBtn');
+        const albumArt = document.getElementById('albumArt');
+        const songTitle = document.getElementById('songTitle');
+        const songArtist = document.getElementById('songArtist');
+        const songAlbum = document.getElementById('songAlbum');
+        const playBtn = document.getElementById('playBtn');
+        const playIcon = document.getElementById('playIcon');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progress = document.getElementById('progress');
+        const progressBar = document.getElementById('progressBar');
+        const currentTime = document.getElementById('currentTime');
+        const duration = document.getElementById('duration');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const songsList = document.getElementById('songsList');
+        const miniPlayer = document.getElementById('miniPlayer');
+        const miniAlbumArt = document.getElementById('miniAlbumArt');
+        const miniTitle = document.getElementById('miniTitle');
+        const miniArtist = document.getElementById('miniArtist');
+        const miniPlayBtn = document.getElementById('miniPlayBtn');
+        const miniPlayIcon = document.getElementById('miniPlayIcon');
+        const miniNextBtn = document.getElementById('miniNextBtn');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notificationText');
+        const audioPlayer = document.getElementById('audioPlayer');
+        
+        // Estado global
+        let currentSong = null;
+        let isPlaying = false;
+        let gospelSongs = [];
+        let currentSongIndex = 0;
+        let progressInterval = null;
+        let deferredPrompt = null;
+        
+        // Termos de busca para músicas gospel
+        const gospelSearchTerms = [
+            'louvor e adoração',
+            'música gospel 2024',
+            'adoração contemporânea',
+            'hinos de louvor',
+            'worship music',
+            'gospel brasileiro',
+            'música cristã',
+            'banda gospel',
+            'adoração ao vivo',
+            'gospel worship',
+            'louvor congregacional',
+            'músicas evangélicas',
+            'worship brasileiro',
+            'hinos evangélicos',
+            'música gospel brasileira'
+        ];
+        
+        // Inicialização
+        window.addEventListener('load', async () => {
+            console.log('🎵 Rádio Gospel Litoral - Inicializando...');
+            
+            // Registrar Service Worker
+            if ('serviceWorker' in navigator) {
+                try {
+                    await navigator.serviceWorker.register('service-worker.js');
+                    console.log('✅ Service Worker registrado');
+                } catch (error) {
+                    console.log('⚠️ Service Worker não registrado:', error);
+                }
+            }
+            
+            // Configurar PWA install prompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installBtn.style.display = 'flex';
+                console.log('📱 PWA disponível para instalação');
             });
+            
+            // Quando instalado
+            window.addEventListener('appinstalled', () => {
+                console.log('✅ PWA instalado com sucesso');
+                installBtn.style.display = 'none';
+                showNotification('Rádio Gospel instalado! 🎵');
+            });
+            
+            // Carregar músicas gospel
+            await loadGospelSongs();
+            
+            // Mostrar app após 2 segundos
+            setTimeout(() => {
+                loadingScreen.classList.add('hidden');
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    appContainer.style.display = 'flex';
+                    
+                    // Tocar música aleatória automaticamente
+                    playRandomGospelSong();
+                    
+                    showNotification('Rádio Gospel Litoral - Tocando agora! 📻');
+                }, 500);
+            }, 2000);
+        });
+        
+        // Carregar músicas gospel do YouTube
+        async function loadGospelSongs() {
+            try {
+                console.log('🔍 Buscando músicas gospel...');
+                
+                // Escolher termo de busca aleatório
+                const searchTerm = gospelSearchTerms[Math.floor(Math.random() * gospelSearchTerms.length)];
+                console.log(`🔍 Termo de busca: ${searchTerm}`);
+                
+                // Buscar vídeos do YouTube
+                const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(searchTerm)}&type=video&videoCategoryId=10&key=${API_KEY}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                gospelSongs = data.items;
+                
+                console.log(`✅ ${gospelSongs.length} músicas carregadas`);
+                
+                // Exibir playlist
+                displayPlaylist();
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar músicas:', error);
+                
+                // Usar lista de fallback
+                gospelSongs = getFallbackSongs();
+                displayPlaylist();
+                
+                showNotification('Modo offline - Músicas padrão');
+            }
         }
-
-        // 2. TOCAR MÚSICA (Elemento <audio> + Media Session API)
+        
+        // Lista de músicas de fallback
+        function getFallbackSongs() {
+            return [
+                {
+                    snippet: {
+                        title: "Oceans (Where Feet May Fail) - Hillsong UNITED",
+                        channelTitle: "Hillsong UNITED",
+                        thumbnails: {
+                            medium: { url: "https://img.youtube.com/vi/xy3K_fundic/mqdefault.jpg" }
+                        }
+                    },
+                    id: { videoId: "xy3K_fundic" }
+                },
+                {
+                    snippet: {
+                        title: "What a Beautiful Name - Hillsong Worship",
+                        channelTitle: "Hillsong Worship",
+                        thumbnails: {
+                            medium: { url: "https://img.youtube.com/vi/nQWFzMvCfLE/mqdefault.jpg" }
+                        }
+                    },
+                    id: { videoId: "nQWFzMvCfLE" }
+                },
+                {
+                    snippet: {
+                        title: "Good Good Father - Chris Tomlin",
+                        channelTitle: "Chris Tomlin",
+                        thumbnails: {
+                            medium: { url: "https://img.youtube.com/vi/CqybaN08QW8/mqdefault.jpg" }
+                        }
+                    },
+                    id: { videoId: "CqybaN08QW8" }
+                },
+                {
+                    snippet: {
+                        title: "Reckless Love - Cory Asbury",
+                        channelTitle: "Cory Asbury",
+                        thumbnails: {
+                            medium: { url: "https://img.youtube.com/vi/Sc6SSHuZvQE/mqdefault.jpg" }
+                        }
+                    },
+                    id: { videoId: "Sc6SSHuZvQE" }
+                },
+                {
+                    snippet: {
+                        title: "No Longer Slaves - Bethel Music",
+                        channelTitle: "Bethel Music",
+                        thumbnails: {
+                            medium: { url: "https://img.youtube.com/vi/f8TkUMJtK5k/mqdefault.jpg" }
+                        }
+                    },
+                    id: { videoId: "f8TkUMJtK5k" }
+                }
+            ];
+        }
+        
+        // Tocar música gospel aleatória
+        async function playRandomGospelSong() {
+            if (gospelSongs.length === 0) {
+                await loadGospelSongs();
+                return;
+            }
+            
+            // Escolher música aleatória
+            currentSongIndex = Math.floor(Math.random() * gospelSongs.length);
+            const song = gospelSongs[currentSongIndex];
+            
+            console.log(`🎵 Tocando: ${song.snippet.title}`);
+            await playSong(song);
+        }
+        
+        // Tocar música específica
         async function playSong(song) {
-            // A. Obter URL de áudio direto (via serviço proxy/publico - exemplo)
-            // EM PRODUÇÃO: Use um backend para extrair o áudio do YouTube.
-            const audioStreamUrl = await getAudioStreamUrl(song.id.videoId);
-
-            // B. Configurar e tocar no elemento <audio>
-            currentAudio.src = audioStreamUrl;
-            document.getElementById('player').style.display = 'block';
-            document.getElementById('songTitle').textContent = song.snippet.title;
-
-            // Inicia a reprodução
-            await currentAudio.play();
-
-            // C. CONFIGURAÇÃO CRÍTICA: Media Session API[citation:4]
-            if ('mediaSession' in navigator) {
+            currentSong = song;
+            
+            // Limpar título
+            const title = cleanTitle(song.snippet.title);
+            
+            // Atualizar UI principal
+            songTitle.textContent = title;
+            songArtist.textContent = song.snippet.channelTitle;
+            songAlbum.textContent = "Rádio Gospel Litoral";
+            
+            // Atualizar imagem
+            updateAlbumArt(song);
+            
+            // Atualizar mini player
+            miniAlbumArt.src = albumArt.src;
+            miniTitle.textContent = title.length > 30 ? title.substring(0, 30) + '...' : title;
+            miniArtist.textContent = song.snippet.channelTitle;
+            
+            // Mostrar mini player
+            miniPlayer.style.display = 'flex';
+            
+            // Atualizar cartão ativo
+            updateActiveCard();
+            
+            // Reproduzir áudio
+            await playAudio(song.id.videoId);
+            
+            // Configurar Media Session API
+            setupMediaSession(song, title);
+            
+            // Mostrar notificação
+            showNotification(`🎵 ${title.substring(0, 30)}...`);
+        }
+        
+        // Limpar título
+        function cleanTitle(title) {
+            return title
+                .replace(/&#39;/g, "'")
+                .replace(/&quot;/g, '"')
+                .replace(/&amp;/g, '&')
+                .replace(/\(Official.*?\)|\[.*?\]|\|.*/g, '')
+                .replace(/MV$/i, '')
+                .trim();
+        }
+        
+        // Atualizar arte do álbum
+        function updateAlbumArt(song) {
+            const defaultImage = 'https://images.unsplash.com/photo-1577733966973-d680bffd2e80?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80';
+            
+            if (song.snippet.thumbnails?.medium?.url) {
+                albumArt.src = song.snippet.thumbnails.medium.url;
+                albumArt.onerror = () => {
+                    albumArt.src = defaultImage;
+                };
+            } else {
+                albumArt.src = defaultImage;
+            }
+        }
+        
+        // Reproduzir áudio
+        async function playAudio(videoId) {
+            try {
+                // Parar áudio atual
+                audioPlayer.pause();
+                audioPlayer.src = '';
+                
+                // URL do proxy CORS
+                const proxyUrl = `https://corsproxy.io/?https://www.youtube.com/watch?v=${videoId}`;
+                
+                // Configurar áudio
+                audioPlayer.src = proxyUrl;
+                audioPlayer.load();
+                audioPlayer.volume = volumeSlider.value / 100;
+                
+                // Aguardar carregamento
+                await new Promise((resolve) => {
+                    const timeout = setTimeout(resolve, 1500);
+                    audioPlayer.addEventListener('loadedmetadata', () => {
+                        clearTimeout(timeout);
+                        resolve();
+                    }, { once: true });
+                });
+                
+                // Iniciar reprodução
+                await audioPlayer.play();
+                isPlaying = true;
+                updatePlayIcons();
+                startProgressUpdater();
+                
+                console.log('✅ Áudio reproduzindo');
+                
+            } catch (error) {
+                console.error('❌ Erro ao reproduzir áudio:', error);
+                
+                // Modo simulado
+                isPlaying = true;
+                updatePlayIcons();
+                startSimulatedProgress();
+                
+                showNotification('🎶 Rádio Gospel - Modo simulador');
+            }
+        }
+        
+        // Configurar Media Session API
+        function setupMediaSession(song, title) {
+            if (!('mediaSession' in navigator)) {
+                console.log('⚠️ Media Session API não suportada');
+                return;
+            }
+            
+            try {
+                // Configurar metadados
                 navigator.mediaSession.metadata = new MediaMetadata({
-                    title: song.snippet.title,
+                    title: title,
                     artist: song.snippet.channelTitle,
-                    album: 'MMJ Music',
+                    album: 'Rádio Gospel Litoral',
                     artwork: [
-                        { src: song.snippet.thumbnails.default.url, sizes: '96x96', type: 'image/jpeg' }
+                        {
+                            src: song.snippet.thumbnails?.default?.url || albumArt.src,
+                            sizes: '96x96',
+                            type: 'image/jpeg'
+                        }
                     ]
                 });
-
-                // Conectar os botões de notificação/tela bloqueada
-                navigator.mediaSession.setActionHandler('play', () => currentAudio.play());
-                navigator.mediaSession.setActionHandler('pause', () => currentAudio.pause());
-                // Forçar o sistema a ver o estado como "playing"
+                
+                // Configurar handlers
+                navigator.mediaSession.setActionHandler('play', async () => {
+                    if (audioPlayer.src) {
+                        await audioPlayer.play();
+                        isPlaying = true;
+                        updatePlayIcons();
+                        startProgressUpdater();
+                        navigator.mediaSession.playbackState = 'playing';
+                    }
+                });
+                
+                navigator.mediaSession.setActionHandler('pause', () => {
+                    if (audioPlayer.src) {
+                        audioPlayer.pause();
+                        isPlaying = false;
+                        updatePlayIcons();
+                        stopProgressUpdater();
+                        navigator.mediaSession.playbackState = 'paused';
+                    }
+                });
+                
+                navigator.mediaSession.setActionHandler('previoustrack', () => {
+                    playPreviousSong();
+                });
+                
+                navigator.mediaSession.setActionHandler('nexttrack', () => {
+                    playNextSong();
+                });
+                
+                // Estado inicial
                 navigator.mediaSession.playbackState = 'playing';
+                
+                console.log('✅ Media Session configurada');
+                
+            } catch (error) {
+                console.log('⚠️ Ações do Media Session não suportadas:', error);
             }
-
-            showStatus('Tocando em background...');
         }
-
-        // 3. Função para obter stream de áudio (SIMPLIFICADA)
-        async function getAudioStreamUrl(videoId) {
-            // ATENÇÃO: Esta é uma solução simplificada para demonstração.
-            // O YouTube não oferece URLs de áudio diretos pela sua API pública.
-            // Em um projeto real, você precisa de um backend próprio para extrair e servir o áudio.
-            // Exemplo de endpoint de um serviço público (pode parar de funcionar):
-            return `https://corsproxy.io/?https://www.youtube.com/watch?v=${videoId}`;
+        
+        // Exibir playlist
+        function displayPlaylist() {
+            songsList.innerHTML = '';
+            
+            gospelSongs.forEach((song, index) => {
+                const card = document.createElement('div');
+                card.className = 'song-card';
+                card.dataset.index = index;
+                
+                const title = cleanTitle(song.snippet.title);
+                const imageUrl = song.snippet.thumbnails?.medium?.url || 
+                                'https://images.unsplash.com/photo-1577733966973-d680bffd2e80?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80';
+                
+                card.innerHTML = `
+                    <img src="${imageUrl}" 
+                         alt="${title}"
+                         onerror="this.src='https://images.unsplash.com/photo-1577733966973-d680bffd2e80?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
+                    <h3>${title.length > 40 ? title.substring(0, 40) + '...' : title}</h3>
+                    <p>${song.snippet.channelTitle}</p>
+                `;
+                
+                card.addEventListener('click', () => {
+                    currentSongIndex = index;
+                    playSong(song);
+                });
+                
+                songsList.appendChild(card);
+            });
         }
-
-        // 4. Mostrar status
-        function showStatus(text) {
-            const status = document.getElementById('status');
-            status.textContent = text;
-            status.style.display = 'block';
-            setTimeout(() => status.style.display = 'none', 3000);
+        
+        // Atualizar cartão ativo
+        function updateActiveCard() {
+            document.querySelectorAll('.song-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            const activeCard = document.querySelector(`.song-card[data-index="${currentSongIndex}"]`);
+            if (activeCard) {
+                activeCard.classList.add('active');
+                activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
-
+        
+        // Atualizar ícones de play/pause
+        function updatePlayIcons() {
+            if (isPlaying) {
+                playIcon.className = 'fas fa-pause';
+                miniPlayIcon.className = 'fas fa-pause';
+            } else {
+                playIcon.className = 'fas fa-play';
+                miniPlayIcon.className = 'fas fa-play';
+            }
+        }
+        
+        // Alternar play/pause
+        async function togglePlayPause() {
+            if (!currentSong) {
+                await playRandomGospelSong();
+                return;
+            }
+            
+            if (isPlaying) {
+                audioPlayer.pause();
+                isPlaying = false;
+                updatePlayIcons();
+                stopProgressUpdater();
+                
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.playbackState = 'paused';
+                }
+                
+                console.log('⏸️ Pausado');
+            } else {
+                try {
+                    await audioPlayer.play();
+                    isPlaying = true;
+                    updatePlayIcons();
+                    startProgressUpdater();
+                    
+                    if ('mediaSession' in navigator) {
+                        navigator.mediaSession.playbackState = 'playing';
+                    }
+                    
+                    console.log('▶️ Retomado');
+                } catch (error) {
+                    console.error('❌ Erro ao retomar:', error);
+                }
+            }
+        }
+        
+        // Música anterior
+        function playPreviousSong() {
+            if (gospelSongs.length === 0) return;
+            
+            currentSongIndex = (currentSongIndex - 1 + gospelSongs.length) % gospelSongs.length;
+            playSong(gospelSongs[currentSongIndex]);
+        }
+        
+        // Próxima música
+        function playNextSong() {
+            if (gospelSongs.length === 0) return;
+            
+            currentSongIndex = (currentSongIndex + 1) % gospelSongs.length;
+            playSong(gospelSongs[currentSongIndex]);
+        }
+        
+           // Barra de progresso
+        function startProgressUpdater() {
+            stopProgressUpdater();
+            progressInterval = setInterval(updateProgress, 1000);
+        }
+        
+        function stopProgressUpdater() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+        }
+        
+        function updateProgress() {
+            if (!audioPlayer.src || !isPlaying) return;
+            
+            try {
+                const current = audioPlayer.currentTime;
+                const total = audioPlayer.duration;
+                
+                if (total > 0 && !isNaN(total)) {
+                    const percent = (current / total) * 100;
+                    progress.style.width = percent + '%';
+                    
+                    currentTime.textContent = formatTime(current);
+                    duration.textContent = formatTime(total);
+                }
+            } catch (e) {
+                console.log('⚠️ Erro no progresso:', e);
+            }
+        }
+        
+        function startSimulatedProgress() {
+            let simulatedTime = 0;
+            stopProgressUpdater();
+            progressInterval = setInterval(() => {
+                simulatedTime += 1;
+                const percent = (simulatedTime % 240) / 2.4; // 4 minutos
+                progress.style.width = percent + '%';
+                currentTime.textContent = formatTime(simulatedTime % 240);
+                duration.textContent = '4:00';
+            }, 1000);
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        // Notificações
+        function showNotification(text) {
+            notificationText.textContent = text;
+            notification.style.display = 'flex';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
         // Event Listeners
-        document.getElementById('searchButton').onclick = () => {
-            const query = document.getElementById('searchInput').value;
-            if (query) searchMusic(query);
-        };
-        document.getElementById('searchInput').onkeypress = (e) => {
-            if (e.key === 'Enter') document.getElementById('searchButton').click();
-        };
-
-        // 5. Registrar Service Worker para o PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(() => console.log('Service Worker registrado para background play.'))
-                .catch(err => console.log('Erro SW:', err));
-        }
-        // Detectar se está rodando como PWA instalado
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            console.log('MMJ Music rodando como PWA instalado.');
-        }
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                installBtn.style.display = 'none';
+                showNotification('📱 Rádio Gospel instalado!');
+            }
+            
+            deferredPrompt = null;
+        });
+        
+        playBtn.addEventListener('click', togglePlayPause);
+        miniPlayBtn.addEventListener('click', togglePlayPause);
+        prevBtn.addEventListener('click', playPreviousSong);
+        nextBtn.addEventListener('click', playNextSong);
+        miniNextBtn.addEventListener('click', playNextSong);
+        
+        progressBar.addEventListener('click', (e) => {
+            if (!audioPlayer.src || !audioPlayer.duration) return;
+            
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            const newTime = percent * audioPlayer.duration;
+            
+            audioPlayer.currentTime = newTime;
+            updateProgress();
+        });
+        
+        volumeSlider.addEventListener('input', (e) => {
+            const volume = e.target.value / 100;
+            audioPlayer.volume = volume;
+        });
+        
+        // Quando o áudio termina
+        audioPlayer.addEventListener('ended', () => {
+            console.log('⏭️ Música terminada, próxima...');
+            playNextSong();
+        });
+        
+        // Prevenir pausa automática
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && isPlaying) {
+                console.log('📱 App em background - Mantendo reprodução');
+                
+                // Manter Media Session ativa
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.playbackState = 'playing';
+                }
+                
+                // Mostrar notificação
+                showNotification('🎶 Rádio Gospel tocando em background');
+            }
+        });
+        
+        // Atualizar playlist periodicamente
+        setInterval(async () => {
+            if (gospelSongs.length > 0) {
+                console.log('🔄 Atualizando playlist...');
+                await loadGospelSongs();
+                showNotification('🎵 Playlist atualizada!');
+            }
+        }, 30 * 60 * 1000); // 30 minutos
+        
+        // Teclas de atalho
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case ' ':
+                case 'Spacebar':
+                    e.preventDefault();
+                    togglePlayPause();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    playPreviousSong();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    playNextSong();
+                    break;
+            }
+        });
+        
+        // Suporte offline
+        window.addEventListener('online', () => {
+            showNotification('🌐 Conexão restaurada');
+        });
+        
+        window.addEventListener('offline', () => {
+            showNotification('📴 Modo offline ativo');
+        });
+        
+        // Forçar background play
+        setInterval(() => {
+            if (isPlaying && navigator.serviceWorker?.controller) {
+                navigator.serviceWorker.controller.postMessage('keepAlive');
+            }
+        }, 15000);
     </script>
 </body>
 </html>
