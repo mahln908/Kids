@@ -1,21 +1,16 @@
 {
-  "name": "MMJ Music",
-  "short_name": "MMJ Music",
-  "description": "Player de música do YouTube com reprodução em background",
+  "name": "Rádio Gospel Litoral",
+  "short_name": "Rádio Gospel",
+  "description": "Rádio Gospel 24h - Músicas de louvor e adoração",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f0f0f",
-  "theme_color": "#ff0000",
+  "background_color": "#191414",
+  "theme_color": "#1DB954",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/725/725281.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/725/725281.png",
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+DQogIDxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMjQwIiBmaWxsPSIjMURCOTU0Ii8+DQogIDxyZWN0IHg9IjE1MCIgeT0iMTYwIiB3aWR0aD0iMjEwIiBoZWlnaHQ9IjE4MCIgcng9IjI1IiBmaWxsPSIjMkQyRDJEIiBzdHJva2U9IiNGRkYiIHN0cm9rZS13aWR0aD0iNiIvPg0KICA8Y2lyY2xlIGN4PSIxODUiIGN5PSIyNTAiIHI9IjI1IiBmaWxsPSIjRkZGIi8+DQogIDxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1MCIgcj0iMjUiIGZpbGw9IiNGRkYiLz4NCiAgPGNpcmNsZSBjeD0iMzI3IiBjeT0iMjUwIiByPSIyNSIgZmlsbD0iI0ZGRiIvPg0KICA8dGV4dCB4PSIxODUiIHk9IjI1OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzFEQjk1NCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCI+4o2wPC90ZXh0Pg0KICA8dGV4dCB4PSIyNTYiIHk9IjI1OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzFEQjk1NCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCI+4oyrPC90ZXh0Pg0KICA8dGV4dCB4PSIzMjciIHk9IjI1OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzFEQjk1NCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCI+4o2xPC90ZXh0Pg0KICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIzNTAiIHI9IjUwIiBmaWxsPSIjMkQyRDJEIiBzdHJva2U9IiNGRkYiIHN0cm9rZS13aWR0aD0iNiIvPg0KICA8cGF0aCBkPSJNMjMwIDMzMCBMMjU2IDM2MCBMMjgyIDMzMCIgZmlsbD0iIzFEQjk1NCIvPg0KICA8dGV4dCB4PSIyNTYiIHk9IjQ0MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI0ZGRiIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjMyIiBmb250LXdlaWdodD0iYm9sZCI+UsOERElPIEdPU1BFTDwvdGV4dD4NCiAgPHRleHQgeD0iMjU2IiB5PSI0NzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxRUQ3NjAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCI+TElUT1JBTDwvdGV4dD4NCjwvc3ZnPg==",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/svg+xml"
     }
   ]
 }
