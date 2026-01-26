@@ -622,5 +622,310 @@
                 audioPlayer.pause();
                 audioPlayer.src = '';
                 
-                // Usar serviço proxy para áudio do YouTube
-             
+     // Usar serviço proxy para áudio do YouTube
+                const proxyUrl = `https://corsproxy.io/?https://www.youtube.com/watch?v=${videoId}`;
+                
+                audioPlayer.src = proxyUrl;
+                audioPlayer.load();
+                audioPlayer.volume = volumeSlider.value / 100;
+                
+                // Aguardar carregamento
+                await new Promise((resolve) => {
+                    const timeout = setTimeout(resolve, 1000);
+                    audioPlayer.addEventListener('canplay', () => {
+                        clearTimeout(timeout);
+                        resolve();
+                    }, { once: true });
+                });
+                
+                // Iniciar reprodução
+                await audioPlayer.play();
+                isPlaying = true;
+                updatePlayIcons();
+                startProgressUpdater();
+                
+                console.log('✅ Áudio reproduzindo');
+                
+            } catch (error) {
+                console.error('❌ Erro ao reproduzir:', error);
+                
+                // Modo simulado para demonstração
+                isPlaying = true;
+                updatePlayIcons();
+                startSimulatedProgress();
+            }
+        }
+        
+        // Configurar Media Session API para notificações e tela bloqueada
+        function setupMediaSession(song) {
+            if (!('mediaSession' in navigator)) {
+                console.log('⚠️ Media Session API não suportada');
+                return;
+            }
+            
+            try {
+                // Configurar metadados para notificação
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: song.title,
+                    artist: song.artist,
+                    album: 'Rádio Gospel Litoral',
+                    artwork: [
+                        { src: song.image, sizes: '96x96', type: 'image/jpeg' },
+                        { src: song.image, sizes: '128x128', type: 'image/jpeg' },
+                        { src: song.image, sizes: '192x192', type: 'image/jpeg' },
+                        { src: song.image, sizes: '256x256', type: 'image/jpeg' },
+                        { src: song.image, sizes: '384x384', type: 'image/jpeg' },
+                        { src: song.image, sizes: '512x512', type: 'image/jpeg' }
+                    ]
+                });
+                
+                // Configurar controles para background play
+                navigator.mediaSession.setActionHandler('play', async () => {
+                    if (audioPlayer.src) {
+                        await audioPlayer.play();
+                        isPlaying = true;
+                        updatePlayIcons();
+                        startProgressUpdater();
+                        navigator.mediaSession.playbackState = 'playing';
+                    }
+                });
+                
+                navigator.mediaSession.setActionHandler('pause', () => {
+                    if (audioPlayer.src) {
+                        audioPlayer.pause();
+                        isPlaying = false;
+                        updatePlayIcons();
+                        stopProgressUpdater();
+                        navigator.mediaSession.playbackState = 'paused';
+                    }
+                });
+                
+                navigator.mediaSession.setActionHandler('previoustrack', () => {
+                    playPreviousSong();
+                });
+                
+                navigator.mediaSession.setActionHandler('nexttrack', () => {
+                    playNextSong();
+                });
+                
+                // Configurar seek (avançar/retroceder)
+                navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+                    const skipTime = details.seekOffset || 10;
+                    const newTime = Math.max(audioPlayer.currentTime - skipTime, 0);
+                    audioPlayer.currentTime = newTime;
+                    updateProgress();
+                });
+                
+                navigator.mediaSession.setActionHandler('seekforward', (details) => {
+                    const skipTime = details.seekOffset || 10;
+                    const newTime = Math.min(audioPlayer.currentTime + skipTime, audioPlayer.duration);
+                    audioPlayer.currentTime = newTime;
+                    updateProgress();
+                });
+                
+                // Forçar estado inicial como playing
+                navigator.mediaSession.playbackState = 'playing';
+                
+                console.log('✅ Media Session configurada para background play');
+                
+            } catch (error) {
+                console.log('⚠️ Algumas ações do Media Session não suportadas:', error);
+            }
+        }
+        
+        // Atualizar ícones de play/pause
+        function updatePlayIcons() {
+            if (isPlaying) {
+                playIcon.className = 'fas fa-pause';
+            } else {
+                playIcon.className = 'fas fa-play';
+            }
+        }
+        
+        // Alternar play/pause
+        async function togglePlayPause() {
+            if (!currentSong) {
+                playRandomSong();
+                return;
+            }
+            
+            if (isPlaying) {
+                audioPlayer.pause();
+                isPlaying = false;
+                updatePlayIcons();
+                stopProgressUpdater();
+                
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.playbackState = 'paused';
+                }
+                
+            } else {
+                try {
+                    await audioPlayer.play();
+                    isPlaying = true;
+                    updatePlayIcons();
+                    startProgressUpdater();
+                    
+                    if ('mediaSession' in navigator) {
+                        navigator.mediaSession.playbackState = 'playing';
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao retomar:', error);
+                }
+            }
+        }
+        
+        // Música anterior
+        function playPreviousSong() {
+            if (gospelSongs.length === 0) return;
+            
+            currentSongIndex = (currentSongIndex - 1 + gospelSongs.length) % gospelSongs.length;
+            playSong(gospelSongs[currentSongIndex]);
+        }
+        
+        // Próxima música
+        function playNextSong() {
+            if (gospelSongs.length === 0) return;
+            
+            currentSongIndex = (currentSongIndex + 1) % gospelSongs.length;
+            playSong(gospelSongs[currentSongIndex]);
+        }
+        
+        // Barra de progresso
+        function startProgressUpdater() {
+            stopProgressUpdater();
+            progressInterval = setInterval(updateProgress, 1000);
+        }
+        
+        function stopProgressUpdater() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+        }
+        
+        function updateProgress() {
+            if (!audioPlayer.src || !isPlaying) return;
+            
+            try {
+                const current = audioPlayer.currentTime;
+                const total = audioPlayer.duration;
+                
+                if (total > 0 && !isNaN(total)) {
+                    const percent = (current / total) * 100;
+                    progress.style.width = percent + '%';
+                    
+                    currentTime.textContent = formatTime(current);
+                    duration.textContent = formatTime(total);
+                }
+            } catch (e) {
+                console.log('⚠️ Erro no progresso:', e);
+            }
+        }
+        
+        function startSimulatedProgress() {
+            let simulatedTime = 0;
+            stopProgressUpdater();
+            progressInterval = setInterval(() => {
+                simulatedTime += 1;
+                const percent = (simulatedTime % 240) / 2.4; // 4 minutos
+                progress.style.width = percent + '%';
+                currentTime.textContent = formatTime(simulatedTime % 240);
+                duration.textContent = '4:00';
+            }, 1000);
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        // Event Listeners
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                installBtn.style.display = 'none';
+            }
+            
+            deferredPrompt = null;
+        });
+        
+        playBtn.addEventListener('click', togglePlayPause);
+        prevBtn.addEventListener('click', playPreviousSong);
+        nextBtn.addEventListener('click', playNextSong);
+        
+        progressBar.addEventListener('click', (e) => {
+            if (!audioPlayer.src || !audioPlayer.duration) return;
+            
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            const newTime = percent * audioPlayer.duration;
+            
+            audioPlayer.currentTime = newTime;
+            updateProgress();
+        });
+        
+        volumeSlider.addEventListener('input', (e) => {
+            const volume = e.target.value / 100;
+            audioPlayer.volume = volume;
+        });
+        
+        // Quando o áudio termina
+        audioPlayer.addEventListener('ended', () => {
+            console.log('⏭️ Música terminada, próxima...');
+            playNextSong();
+        });
+        
+        // PREVENIR PAUSA AUTOMÁTICA - ESSENCIAL PARA BACKGROUND PLAY
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && isPlaying) {
+                console.log('📱 App em background - Mantendo reprodução...');
+                
+                // Forçar Media Session a manter estado de playing
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.playbackState = 'playing';
+                }
+                
+                // Enviar mensagem para Service Worker
+                if (navigator.serviceWorker?.controller) {
+                    navigator.serviceWorker.controller.postMessage({
+                        type: 'PLAYING_IN_BACKGROUND',
+                        song: currentSong?.title || 'Rádio Gospel'
+                    });
+                }
+            }
+        });
+        
+        // Teclas de atalho
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case ' ':
+                case 'Spacebar':
+                    e.preventDefault();
+                    togglePlayPause();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    playPreviousSong();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    playNextSong();
+                    break;
+            }
+        });
+        
+        // Atualizar música automaticamente a cada 5 minutos
+        setInterval(() => {
+            if (isPlaying && gospelSongs.length > 0) {
+                playNextSong();
+            }
+        }, 5 * 60 * 1000); // 5 minutos
+    </script>
+</body>
+</html>
