@@ -1,27 +1,14 @@
-// Nome do cache
-const CACHE_NAME = 'mmj-music-v1';
-
-// Instalar e armazenar arquivos essenciais em cache
-self.addEventListener('install', event => {
-  console.log('[Service Worker] Instalando...');
-  self.skipWaiting(); // Ativar imediatamente
+const CACHE_NAME = 'radio-gospel-v1';
+self.addEventListener('install', e => {
+  console.log('📻 Rádio Gospel - SW instalado');
+  self.skipWaiting();
 });
-
-// Ativar e limpar caches antigos
-self.addEventListener('activate', event => {
-  console.log('[Service Worker] Ativando...');
-  event.waitUntil(clients.claim()); // Controlar páginas abertas imediatamente
+self.addEventListener('activate', e => {
+  console.log('📻 Rádio Gospel - SW ativo');
+  e.waitUntil(clients.claim());
 });
-
-// Estratégia: buscar na rede primeiro, com fallback para cache
-self.addEventListener('fetch', event => {
-  // Para requisições de áudio/mídia, priorizar a rede
-  if (event.request.url.includes('youtube.com') || event.request.destination === 'audio') {
-    event.respondWith(fetch(event.request));
-    return;
-  }
-  // Para outros recursos, usar a estratégia padrão
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(res => res || fetch(e.request))
   );
 });
