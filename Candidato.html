@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Candidato - Empregos Litoral</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/869/869636.png">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .perfil-header {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+        }
+        
+        .perfil-header h1 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .perfil-info {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .perfil-info p {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            color: #0ea5e9;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+        
+        .vaga-item {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 0;
+        }
+        
+        .vaga-item:last-child {
+            border-bottom: none;
+        }
+        
+        .vaga-item h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn-perfil {
+            display: inline-block;
+            background-color: #0ea5e9;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 1rem;
+        }
+        
+        .btn-sair {
+            background-color: #ef4444;
+            margin-left: 1rem;
+        }
+        
+        .btn-sair:hover {
+            background-color: #dc2626;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <img src="https://cdn-icons-png.flaticon.com/512/869/869636.png" alt="Praia" class="logo-icon">
+                <span>Empregos <span class="highlight">Litoral</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Início</a>
+                <a href="vagas.html">Vagas</a>
+                <a href="perfil.html">Meu Perfil</a>
+                <a href="#" id="sair" class="btn-login">Sair</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="dashboard-container">
+            <div class="perfil-header" id="perfilHeader">
+                <h1>Olá, <span id="nomeUsuario"></span>!</h1>
+                <p>Bem-vindo ao seu painel de candidato</p>
+                <div class="perfil-info">
+                    <p>📧 <span id="emailUsuario"></span></p>
+                    <p>📞 <span id="telefoneUsuario"></span></p>
+                    <p>📍 <span id="cidadeUsuario"></span></p>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h2>📝 Minhas candidaturas</h2>
+                    <div id="minhasCandidaturas">
+                        <p>Você ainda não se candidatou a nenhuma vaga.</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>🔍 Vagas em destaque</h2>
+                    <div id="vagasDestaque">
+                        <p>Carregando vagas...</p>
+                    </div>
+                    <a href="vagas.html" class="btn-perfil">Ver todas as vagas</a>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 2rem;">
+                <h2>📄 Complete seu perfil</h2>
+                <p>Adicione suas habilidades, experiências e currículo para aumentar suas chances.</p>
+                <a href="perfil.html" class="btn-perfil">Editar perfil</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h4>Empregos Litoral</h4>
+                <p>Conectando talentos às melhores oportunidades no litoral</p>
+            </div>
+            <div class="footer-col">
+                <h4>Contato</h4>
+                <p>📧 contato@empregoslitoral.com.br</p>
+                <p>📞 (13) 99999-9999</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Empregos Litoral - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        
+        if (!usuarioLogado || usuarioLogado.tipo !== 'candidato') {
+            window.location.href = 'login.html';
+        }
+        
+        document.getElementById('nomeUsuario').textContent = usuarioLogado.nome.split(' ')[0];
+        document.getElementById('emailUsuario').textContent = usuarioLogado.email;
+        document.getElementById('telefoneUsuario').textContent = usuarioLogado.telefone;
+        document.getElementById('cidadeUsuario').textContent = usuarioLogado.cidade;
+        
+        const candidaturas = JSON.parse(localStorage.getItem('candidaturas') || '[]');
+        const minhasCandidaturas = candidaturas.filter(c => c.candidatoId === usuarioLogado.id);
+        
+        const containerCandidaturas = document.getElementById('minhasCandidaturas');
+        if (minhasCandidaturas.length > 0) {
+            containerCandidaturas.innerHTML = '';
+            minhasCandidaturas.forEach(cand => {
+                const div = document.createElement('div');
+                div.className = 'vaga-item';
+                div.innerHTML = `
+                    <h3>${cand.vagaTitulo}</h3>
+                    <p>${cand.empresaNome}</p>
+                    <p>Status: <strong>${cand.status}</strong></p>
+                `;
+                containerCandidaturas.appendChild(div);
+            });
+        }
+        
+        const vagas = JSON.parse(localStorage.getItem('vagas') || '[]');
+        const vagasAtivas = vagas.filter(v => v.status === 'ativa').slice(-5);
+        
+        const containerVagas = document.getElementById('vagasDestaque');
+        if (vagasAtivas.length > 0) {
+            containerVagas.innerHTML = '';
+            vagasAtivas.forEach(vaga => {
+                const div = document.createElement('div');
+                div.className = 'vaga-item';
+                div.innerHTML = `
+                    <h3>${vaga.titulo}</h3>
+                    <p>${vaga.nomeEmpresa}</p>
+                    <p>📍 ${vaga.cidade}</p>
+                    <button onclick="candidatar(${vaga.id}, '${vaga.titulo}', '${vaga.nomeEmpresa}')" class="btn-candidatar" style="margin-top:0.5rem;">Candidatar-se</button>
+                `;
+                containerVagas.appendChild(div);
+            });
+        } else {
+            containerVagas.innerHTML = '<p>Nenhuma vaga disponível no momento.</p>';
+        }
+        
+        window.candidatar = function(vagaId, titulo, empresa) {
+            const candidaturas = JSON.parse(localStorage.getItem('candidaturas') || '[]');
+            
+            if (candidaturas.some(c => c.vagaId === vagaId && c.candidatoId === usuarioLogado.id)) {
+                alert('Você já se candidatou a esta vaga.');
+                return;
+            }
+            
+            candidaturas.push({
+                id: Date.now(),
+                vagaId: vagaId,
+                vagaTitulo: titulo,
+                empresaNome: empresa,
+                candidatoId: usuarioLogado.id,
+                candidatoNome: usuarioLogado.nome,
+                status: 'pendente',
+                data: new Date().toISOString()
+            });
+            
+            localStorage.setItem('candidaturas', JSON.stringify(candidaturas));
+            alert('Candidatura realizada com sucesso!');
+            window.location.reload();
+        };
+        
+        document.getElementById('sair').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('usuarioLogado');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
