@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vagas - Empregos Litoral</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/869/869636.png">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .vagas-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .filtros {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .filtros h2 {
+            margin-bottom: 1rem;
+            color: #0ea5e9;
+        }
+        
+        .filtros-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .filtros select, .filtros input {
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            width: 100%;
+        }
+        
+        .btn-filtrar {
+            background-color: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .vagas-lista {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .vaga-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .vaga-card h3 {
+            color: #0ea5e9;
+            margin-bottom: 0.5rem;
+        }
+        
+        .vaga-empresa {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .vaga-local {
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+        
+        .vaga-descricao {
+            color: #2c3e50;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .vaga-contato {
+            background-color: #f1f5f9;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+        }
+        
+        .sem-vagas {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 16px;
+            grid-column: 1/-1;
+        }
+        
+        @media (max-width: 768px) {
+            .vagas-lista {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <img src="https://cdn-icons-png.flaticon.com/512/869/869636.png" alt="Praia" class="logo-icon">
+                <span>Empregos <span class="highlight">Litoral</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Início</a>
+                <a href="vagas.html" class="active">Vagas</a>
+                <a href="cadastro.html" class="btn-cadastro">Cadastrar</a>
+                <a href="login.html" class="btn-login">Entrar</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="vagas-container">
+            <div class="filtros">
+                <h2>🔍 Filtrar vagas</h2>
+                <div class="filtros-grid">
+                    <select id="filtroCidade">
+                        <option value="">Todas as cidades</option>
+                        <option value="Santos">Santos</option>
+                        <option value="Sao Vicente">São Vicente</option>
+                        <option value="Praia Grande">Praia Grande</option>
+                        <option value="Guaruja">Guarujá</option>
+                        <option value="Bertioga">Bertioga</option>
+                    </select>
+                    <input type="text" id="filtroBusca" placeholder="Buscar por título ou empresa">
+                    <button id="btnFiltrar" class="btn-filtrar">Filtrar</button>
+                    <button id="btnLimpar" class="btn-filtrar" style="background-color:#6c757d;">Limpar</button>
+                </div>
+            </div>
+            
+            <div class="vagas-lista" id="vagasLista">
+                <p>Carregando vagas...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h4>Empregos Litoral</h4>
+                <p>Conectando talentos às melhores oportunidades no litoral</p>
+            </div>
+            <div class="footer-col">
+                <h4>Contato</h4>
+                <p>📧 contato@empregoslitoral.com.br</p>
+                <p>📞 (13) 99999-9999</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Empregos Litoral - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        function carregarVagas() {
+            const vagas = JSON.parse(localStorage.getItem('vagas') || '[]');
+            const vagasAtivas = vagas.filter(v => v.status === 'ativa');
+            
+            const cidadeFiltro = document.getElementById('filtroCidade').value;
+            const buscaFiltro = document.getElementById('filtroBusca').value.toLowerCase();
+            
+            let vagasFiltradas = vagasAtivas;
+            
+            if (cidadeFiltro) {
+                vagasFiltradas = vagasFiltradas.filter(v => v.cidade === cidadeFiltro);
+            }
+            
+            if (buscaFiltro) {
+                vagasFiltradas = vagasFiltradas.filter(v => 
+                    v.titulo.toLowerCase().includes(buscaFiltro) || 
+                    v.nomeEmpresa.toLowerCase().includes(buscaFiltro)
+                );
+            }
+            
+            const container = document.getElementById('vagasLista');
+            
+            if (vagasFiltradas.length === 0) {
+                container.innerHTML = '<div class="sem-vagas"><p>Nenhuma vaga encontrada.</p></div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            vagasFiltradas.forEach(vaga => {
+                const div = document.createElement('div');
+                div.className = 'vaga-card';
+                div.innerHTML = `
+                    <h3>${vaga.titulo}</h3>
+                    <div class="vaga-empresa">🏢 ${vaga.nomeEmpresa}</div>
+                    <div class="vaga-local">📍 ${vaga.cidade}</div>
+                    <div class="vaga-descricao">${vaga.descricao.substring(0, 150)}${vaga.descricao.length > 150 ? '...' : ''}</div>
+                    <div class="vaga-contato">
+                        📞 ${vaga.telefoneContato}<br>
+                        📧 ${vaga.emailContato}
+                    </div>
+                    <a href="cadastro.html" class="btn-candidatar" style="display:inline-block; text-align:center;">Candidatar-se</a>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        document.getElementById('btnFiltrar').addEventListener('click', carregarVagas);
+        document.getElementById('btnLimpar').addEventListener('click', function() {
+            document.getElementById('filtroCidade').value = '';
+            document.getElementById('filtroBusca').value = '';
+            carregarVagas();
+        });
+        
+        carregarVagas();
+    </script>
+</body>
+</html>
