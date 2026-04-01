@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Empregos Litoral</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/869/869636.png">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .perfil-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .card h1 {
+            color: #0ea5e9;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .btn-salvar {
+            background-color: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn-salvar:hover {
+            background-color: #0284c7;
+        }
+        
+        .mensagem {
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        
+        .mensagem.sucesso {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <img src="https://cdn-icons-png.flaticon.com/512/869/869636.png" alt="Praia" class="logo-icon">
+                <span>Empregos <span class="highlight">Litoral</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Início</a>
+                <a href="vagas.html">Vagas</a>
+                <a href="#" id="dashboardLink">Meu Painel</a>
+                <a href="#" id="sair" class="btn-login">Sair</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="perfil-container">
+            <div class="card">
+                <h1>Meu Perfil</h1>
+                <div id="mensagem" class="mensagem"></div>
+                
+                <form id="formPerfil">
+                    <div class="form-group">
+                        <label>Nome completo</label>
+                        <input type="text" id="nome" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Telefone / WhatsApp</label>
+                        <input type="tel" id="telefone" required oninput="formatarTelefone(this)">
+                    </div>
+                    
+                    <div class="form-group" id="campoNomeEmpresa" style="display:none;">
+                        <label>Nome da empresa</label>
+                        <input type="text" id="nomeEmpresa">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Cidade</label>
+                        <select id="cidade" required>
+                            <option value="Santos">Santos</option>
+                            <option value="Sao Vicente">São Vicente</option>
+                            <option value="Praia Grande">Praia Grande</option>
+                            <option value="Guaruja">Guarujá</option>
+                            <option value="Bertioga">Bertioga</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="campoHabilidades" style="display:none;">
+                        <label>Habilidades / Competências</label>
+                        <textarea id="habilidades" placeholder="Ex: Atendimento ao cliente, Pacote Office, Inglês..."></textarea>
+                    </div>
+                    
+                    <div class="form-group" id="campoExperiencia" style="display:none;">
+                        <label>Experiência profissional</label>
+                        <textarea id="experiencia" placeholder="Descreva suas experiências anteriores..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-salvar">Salvar alterações</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h4>Empregos Litoral</h4>
+                <p>Conectando talentos às melhores oportunidades no litoral</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Empregos Litoral - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        
+        if (!usuarioLogado) {
+            window.location.href = 'login.html';
+        }
+        
+        const perfilCompleto = JSON.parse(localStorage.getItem('perfilCompleto_' + usuarioLogado.id) || '{}');
+        
+        document.getElementById('nome').value = perfilCompleto.nome || usuarioLogado.nome;
+        document.getElementById('telefone').value = perfilCompleto.telefone || usuarioLogado.telefone;
+        document.getElementById('cidade').value = perfilCompleto.cidade || usuarioLogado.cidade;
+        
+        if (usuarioLogado.tipo === 'empregador') {
+            document.getElementById('campoNomeEmpresa').style.display = 'block';
+            document.getElementById('nomeEmpresa').value = perfilCompleto.nomeEmpresa || usuarioLogado.nomeEmpresa || '';
+        } else {
+            document.getElementById('campoHabilidades').style.display = 'block';
+            document.getElementById('campoExperiencia').style.display = 'block';
+            document.getElementById('habilidades').value = perfilCompleto.habilidades || '';
+            document.getElementById('experiencia').value = perfilCompleto.experiencia || '';
+        }
+        
+        document.getElementById('formPerfil').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const dadosAtualizados = {
+                nome: document.getElementById('nome').value,
+                telefone: document.getElementById('telefone').value,
+                cidade: document.getElementById('cidade').value
+            };
+            
+            if (usuarioLogado.tipo === 'empregador') {
+                dadosAtualizados.nomeEmpresa = document.getElementById('nomeEmpresa').value;
+            } else {
+                dadosAtualizados.habilidades = document.getElementById('habilidades').value;
+                dadosAtualizados.experiencia = document.getElementById('experiencia').value;
+            }
+            
+            localStorage.setItem('perfilCompleto_' + usuarioLogado.id, JSON.stringify(dadosAtualizados));
+            
+            usuarioLogado.nome = dadosAtualizados.nome;
+            usuarioLogado.telefone = dadosAtualizados.telefone;
+            usuarioLogado.cidade = dadosAtualizados.cidade;
+            
+            if (usuarioLogado.tipo === 'empregador') {
+                usuarioLogado.nomeEmpresa = dadosAtualizados.nomeEmpresa;
+            }
+            
+            const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+            const index = usuarios.findIndex(u => u.id === usuarioLogado.id);
+            if (index !== -1) {
+                usuarios[index] = usuarioLogado;
+                localStorage.setItem('usuarios', JSON.stringify(usuarios));
+            }
+            
+            localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+            
+            const msgDiv = document.getElementById('mensagem');
+            msgDiv.textContent = 'Perfil atualizado com sucesso!';
+            msgDiv.className = 'mensagem sucesso';
+            msgDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 3000);
+        });
+        
+        const dashboardLink = document.getElementById('dashboardLink');
+        if (usuarioLogado.tipo === 'empregador') {
+            dashboardLink.href = 'dashboard-empregador.html';
+        } else {
+            dashboardLink.href = 'dashboard-candidato.html';
+        }
+        
+        document.getElementById('sair').addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('usuarioLogado');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
