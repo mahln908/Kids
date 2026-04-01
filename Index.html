@@ -1,805 +1,100 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rádio Gospel Litoral</title>
-    <meta name="theme-color" content="#1DB954">
-    <meta name="description" content="Rádio Gospel 24h - Louvor e Adoração">
-    
-    <!-- PWA -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSIzMCIgZmlsbD0iIzFEQjk1NCIvPjx0ZXh0IHg9IjMyIiB5PSI0MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI0ZGRiIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCI+UjwvdGV4dD48L3N2Zz4=">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            overflow: hidden;
-        }
-
-        /* TELA INICIAL */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #000428, #004e92);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s;
-        }
-
-        .loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .radio-logo {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .logo-title {
-            font-size: 3.5rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #1DB954, #1ED760);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 10px;
-            text-shadow: 0 0 30px rgba(29, 185, 84, 0.5);
-            letter-spacing: 2px;
-        }
-
-        .logo-subtitle {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.7);
-            letter-spacing: 4px;
-            text-transform: uppercase;
-        }
-
-        .radio-animation {
-            width: 120px;
-            height: 120px;
-            margin: 30px auto;
-            position: relative;
-        }
-
-        .radio-circle {
-            width: 120px;
-            height: 120px;
-            border: 3px solid #1DB954;
-            border-radius: 50%;
-            position: absolute;
-            animation: pulse 2s infinite;
-        }
-
-        .radio-circle:nth-child(2) {
-            animation-delay: 0.5s;
-            opacity: 0.7;
-            border-color: #1ED760;
-        }
-
-        .radio-circle:nth-child(3) {
-            animation-delay: 1s;
-            opacity: 0.4;
-            border-color: #00FF88;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(0.8); opacity: 1; }
-            100% { transform: scale(2); opacity: 0; }
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-top-color: #1DB954;
-            border-radius: 50%;
-            margin: 20px auto;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* PLAYER PRINCIPAL */
-        .player-container {
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-            display: none;
-        }
-
-        .radio-header {
-            margin-bottom: 30px;
-        }
-
-        .radio-name {
-            font-size: 2rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #1DB954, #1ED760);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 5px;
-        }
-
-        .radio-status {
-            color: #1DB954;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            background: #FF0000;
-            border-radius: 50%;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* CAPA DA MÚSICA */
-        .album-art-container {
-            position: relative;
-            margin-bottom: 30px;
-        }
-
-        .album-art {
-            width: 280px;
-            height: 280px;
-            border-radius: 20px;
-            object-fit: cover;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            margin: 0 auto;
-            display: block;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .vinyl-effect {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 280px;
-            height: 280px;
-            border-radius: 50%;
-            background: conic-gradient(
-                transparent 0deg,
-                rgba(29, 185, 84, 0.1) 90deg,
-                transparent 180deg,
-                rgba(30, 215, 96, 0.1) 270deg
-            );
-            animation: rotate 20s linear infinite;
-            pointer-events: none;
-        }
-
-        @keyframes rotate {
-            from { transform: translateX(-50%) rotate(0deg); }
-            to { transform: translateX(-50%) rotate(360deg); }
-        }
-
-        /* INFORMAÇÕES DA MÚSICA */
-        .song-info {
-            margin-bottom: 30px;
-            padding: 0 20px;
-        }
-
-        .song-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: white;
-            line-height: 1.3;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .song-artist {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 5px;
-        }
-
-        /* BOTÃO PLAY/PAUSE */
-        .play-button {
-            background: #1DB954;
-            color: white;
-            border: none;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            font-size: 1.8rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 20px auto;
-            transition: all 0.3s;
-            box-shadow: 0 10px 20px rgba(29, 185, 84, 0.3);
-        }
-
-        .play-button:hover {
-            background: #1ED760;
-            transform: scale(1.1);
-            box-shadow: 0 15px 30px rgba(29, 185, 84, 0.4);
-        }
-
-        /* BOTÃO DE INSTALAÇÃO */
-        .install-btn {
-            background: #1DB954;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            gap: 8px;
-            margin: 20px auto 0;
-            transition: all 0.3s;
-        }
-
-        .install-btn:hover {
-            background: #1ED760;
-            transform: scale(1.05);
-        }
-
-        /* RESPONSIVO */
-        @media (max-width: 480px) {
-            .logo-title {
-                font-size: 2.5rem;
-            }
-            
-            .album-art {
-                width: 250px;
-                height: 250px;
-            }
-            
-            .vinyl-effect {
-                width: 250px;
-                height: 250px;
-            }
-            
-            .song-title {
-                font-size: 1.3rem;
-                min-height: 50px;
-            }
-            
-            .play-button {
-                width: 70px;
-                height: 70px;
-                font-size: 1.6rem;
-            }
-        }
-    </style>
+    <title>Empregos Litoral - Encontre seu emprego no litoral</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/869/869636.png">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- TELA DE CARREGAMENTO -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="radio-logo">
-            <h1 class="logo-title">RÁDIO GOSPEL</h1>
-            <p class="logo-subtitle">LITORAL</p>
-        </div>
-        
-        <div class="radio-animation">
-            <div class="radio-circle"></div>
-            <div class="radio-circle"></div>
-            <div class="radio-circle"></div>
-        </div>
-        
-        <div class="loading-spinner"></div>
-        <p style="color: rgba(255,255,255,0.7); margin-top: 20px;">Carregando músicas gospel...</p>
-    </div>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <img src="https://cdn-icons-png.flaticon.com/512/869/869636.png" alt="Praia" class="logo-icon">
+                <span>Empregos <span class="highlight">Litoral</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="active">Início</a>
+                <a href="vagas.html">Vagas</a>
+                <a href="cadastro.html" class="btn-cadastro">Cadastrar</a>
+                <a href="login.html" class="btn-login">Entrar</a>
+            </div>
+        </nav>
+    </header>
 
-    <!-- PLAYER PRINCIPAL -->
-    <div class="player-container" id="playerContainer">
-        <div class="radio-header">
-            <h2 class="radio-name">RÁDIO GOSPEL</h2>
-            <div class="radio-status">
-                <div class="live-dot"></div>
-                <span>AO VIVO • 24H LOUVOR</span>
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Conectamos você ao <span class="highlight">emprego ideal</span> no litoral</h1>
+                <p>Milhares de oportunidades esperando por você. Cadastre-se e comece agora.</p>
+                <div class="hero-buttons">
+                    <a href="cadastro.html" class="btn-primary">Quero Trabalhar</a>
+                    <a href="cadastro.html?tipo=empregador" class="btn-secondary">Quero Contratar</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="como-funciona">
+            <h2>Como funciona</h2>
+            <div class="passos">
+                <div class="passo">
+                    <div class="passo-numero">1</div>
+                    <h3>Crie sua conta</h3>
+                    <p>Escolha entre candidato ou empregador e preencha seus dados</p>
+                </div>
+                <div class="passo">
+                    <div class="passo-numero">2</div>
+                    <h3>Encontre ou publique</h3>
+                    <p>Candidatos buscam vagas | Empregadores publicam oportunidades</p>
+                </div>
+                <div class="passo">
+                    <div class="passo-numero">3</div>
+                    <h3>Conecte-se</h3>
+                    <p>Entre em contato diretamente por telefone, WhatsApp ou e-mail</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="vagas-recentes">
+            <h2>Vagas recentes</h2>
+            <div class="vagas-lista" id="vagas-lista">
+            </div>
+            <div class="centro">
+                <a href="vagas.html" class="btn-ver-todas">Ver todas as vagas →</a>
+            </div>
+        </section>
+
+        <section class="anuncie">
+            <h2>É empresa?</h2>
+            <p>Anuncie suas vagas gratuitamente e encontre os melhores profissionais da região</p>
+            <a href="cadastro.html?tipo=empregador" class="btn-primary">Anunciar vaga</a>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h4>Empregos Litoral</h4>
+                <p>Conectando talentos às melhores oportunidades no litoral</p>
+            </div>
+            <div class="footer-col">
+                <h4>Contato</h4>
+                <p>📧 contato@empregoslitoral.com.br</p>
+                <p>📞 (13) 99999-9999</p>
+                <p>📱 WhatsApp: (13) 98888-7777</p>
+            </div>
+            <div class="footer-col">
+                <h4>Redes Sociais</h4>
+                <p>📷 @empregoslitoral</p>
+                <p>👍 /empregoslitoral</p>
             </div>
         </div>
-
-        <!-- CAPA DA MÚSICA -->
-        <div class="album-art-container">
-            <img id="albumArt" src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                 alt="Capa do Álbum" class="album-art">
-            <div class="vinyl-effect"></div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Empregos Litoral - Todos os direitos reservados</p>
         </div>
+    </footer>
 
-        <!-- INFORMAÇÕES DA MÚSICA -->
-        <div class="song-info">
-            <div id="songTitle" class="song-title">Rádio Gospel Litoral</div>
-            <div id="songArtist" class="song-artist">Louvor e Adoração 24h</div>
-        </div>
-
-        <!-- BOTÃO PLAY/PAUSE -->
-        <button class="play-button" id="playBtn">
-            <i class="fas fa-play" id="playIcon"></i>
-        </button>
-
-        <!-- BOTÃO DE INSTALAÇÃO PWA -->
-        <button class="install-btn" id="installBtn">
-            <i class="fas fa-download"></i> Instalar App
-        </button>
-    </div>
-
-    <!-- ELEMENTO DE ÁUDIO -->
-    <audio id="audioPlayer" preload="auto" style="display: none;" crossorigin="anonymous"></audio>
-
-    <script>
-        // 🔑 SUA CHAVE DA API DO YOUTUBE
-        const API_KEY = 'AIzaSyBe89OpBYTdOhjzL4eej7dLms7LJ_9sYg8';
-        
-        // Elementos DOM
-        const loadingScreen = document.getElementById('loadingScreen');
-        const playerContainer = document.getElementById('playerContainer');
-        const installBtn = document.getElementById('installBtn');
-        const albumArt = document.getElementById('albumArt');
-        const songTitle = document.getElementById('songTitle');
-        const songArtist = document.getElementById('songArtist');
-        const playBtn = document.getElementById('playBtn');
-        const playIcon = document.getElementById('playIcon');
-        const audioPlayer = document.getElementById('audioPlayer');
-        
-        // Estado global
-        let currentSong = null;
-        let isPlaying = false;
-        let youtubePlayer = null;
-        let deferredPrompt = null;
-        let currentVideoId = null;
-        
-        // Termos de busca para músicas gospel
-        const gospelKeywords = [
-            'louvor gospel',
-            'música gospel 2024',
-            'adoração cristã',
-            'hinos evangélicos',
-            'gospel brasileiro',
-            'worship music',
-            'música cristã',
-            'bandas gospel',
-            'louvor congregacional'
-        ];
-        
-        // Inicialização
-        window.addEventListener('load', async () => {
-            console.log('🎵 Rádio Gospel Litoral - Iniciando...');
-            
-            // Registrar Service Worker para PWA
-            if ('serviceWorker' in navigator) {
-                try {
-                    await navigator.serviceWorker.register('service-worker.js');
-                    console.log('✅ Service Worker registrado');
-                } catch (error) {
-                    console.log('⚠️ Service Worker não registrado:', error);
-                }
-            }
-            
-            // Configurar PWA install prompt
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                installBtn.style.display = 'flex';
-                console.log('📱 PWA disponível para instalação');
-            });
-            
-            // Quando instalado
-            window.addEventListener('appinstalled', () => {
-                console.log('✅ PWA instalado com sucesso');
-                installBtn.style.display = 'none';
-            });
-            
-            // Carregar YouTube IFrame API
-            await loadYouTubeAPI();
-            
-            // Mostrar player após 2 segundos
-            setTimeout(() => {
-                loadingScreen.classList.add('hidden');
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    playerContainer.style.display = 'block';
-                    
-                    // Iniciar transmissão
-                    startRadioStream();
-                }, 500);
-            }, 2000);
-        });
-        
-        // Carregar YouTube IFrame API
-        function loadYouTubeAPI() {
-            return new Promise((resolve) => {
-                const tag = document.createElement('script');
-                tag.src = 'https://www.youtube.com/iframe_api';
-                const firstScriptTag = document.getElementsByTagName('script')[0];
-                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-                
-                window.onYouTubeIframeAPIReady = function() {
-                    console.log('✅ YouTube API carregada');
-                    resolve();
-                };
-            });
-        }
-        
-        // Iniciar transmissão da rádio
-        async function startRadioStream() {
-            try {
-                // Buscar música gospel aleatória
-                const randomKeyword = gospelKeywords[Math.floor(Math.random() * gospelKeywords.length)];
-                const videoData = await searchGospelMusic(randomKeyword);
-                
-                if (videoData) {
-                    currentSong = videoData;
-                    currentVideoId = videoData.id.videoId;
-                    
-                    // Atualizar interface
-                    updateSongInfo(videoData);
-                    
-                    // Iniciar player do YouTube
-                    initYouTubePlayer(videoData.id.videoId);
-                    
-                    // Configurar Media Session para notificações
-                    setupMediaSession(videoData);
-                    
-                    console.log('🎵 Tocando:', videoData.snippet.title);
-                } else {
-                    // Fallback se não encontrar música
-                    playFallbackStream();
-                }
-            } catch (error) {
-                console.error('❌ Erro ao iniciar transmissão:', error);
-                playFallbackStream();
-            }
-        }
-        
-        // Buscar música gospel no YouTube
-        async function searchGospelMusic(keyword) {
-            try {
-                const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(keyword)}&type=video&videoCategoryId=10&key=${API_KEY}`;
-                
-                console.log('🔍 Buscando:', keyword);
-                const response = await fetch(url);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.items && data.items.length > 0) {
-                    return data.items[0];
-                }
-                
-                return null;
-            } catch (error) {
-                console.error('❌ Erro na busca:', error);
-                return null;
-            }
-        }
-        
-        // Inicializar player do YouTube
-        function initYouTubePlayer(videoId) {
-            if (youtubePlayer) {
-                youtubePlayer.loadVideoById(videoId);
-                youtubePlayer.playVideo();
-            } else {
-                youtubePlayer = new YT.Player('audioPlayer', {
-                    height: '0',
-                    width: '0',
-                    videoId: videoId,
-                    playerVars: {
-                        'autoplay': 1,
-                        'controls': 0,
-                        'disablekb': 1,
-                        'fs': 0,
-                        'iv_load_policy': 3,
-                        'modestbranding': 1,
-                        'playsinline': 1,
-                        'rel': 0
-                    },
-                    events: {
-                        'onReady': onPlayerReady,
-                        'onStateChange': onPlayerStateChange,
-                        'onError': onPlayerError
-                    }
-                });
-            }
-            
-            isPlaying = true;
-            playIcon.className = 'fas fa-pause';
-        }
-        
-        // Eventos do player do YouTube
-        function onPlayerReady(event) {
-            console.log('✅ Player do YouTube pronto');
-            event.target.setVolume(70);
-            
-            // Forçar reprodução
-            event.target.playVideo();
-        }
-        
-        function onPlayerStateChange(event) {
-            console.log('Estado do player:', event.data);
-            
-            if (event.data === YT.PlayerState.PLAYING) {
-                isPlaying = true;
-                playIcon.className = 'fas fa-pause';
-                
-                // Atualizar Media Session
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.playbackState = 'playing';
-                }
-                
-                console.log('▶️ Reproduzindo');
-                
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                isPlaying = false;
-                playIcon.className = 'fas fa-play';
-                
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.playbackState = 'paused';
-                }
-                
-                console.log('⏸️ Pausado');
-                
-            } else if (event.data === YT.PlayerState.ENDED) {
-                console.log('⏭️ Música terminada, próxima...');
-                // Quando terminar, buscar nova música
-                setTimeout(() => {
-                    startRadioStream();
-                }, 1000);
-            }
-        }
-        
-        function onPlayerError(event) {
-            console.error('❌ Erro no player:', event.data);
-            // Tentar próxima música em caso de erro
-            setTimeout(() => {
-                startRadioStream();
-            }, 2000);
-        }
-        
-        // Atualizar informações da música
-        function updateSongInfo(videoData) {
-            const title = cleanTitle(videoData.snippet.title);
-            const artist = videoData.snippet.channelTitle;
-            
-            songTitle.textContent = title;
-            songArtist.textContent = artist;
-            
-            // Usar thumbnail do YouTube
-            if (videoData.snippet.thumbnails?.maxres?.url) {
-                albumArt.src = videoData.snippet.thumbnails.maxres.url;
-            } else if (videoData.snippet.thumbnails?.high?.url) {
-                albumArt.src = videoData.snippet.thumbnails.high.url;
-            } else if (videoData.snippet.thumbnails?.medium?.url) {
-                albumArt.src = videoData.snippet.thumbnails.medium.url;
-            }
-            
-            // Fallback para erro na imagem
-            albumArt.onerror = () => {
-                albumArt.src = 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80';
-            };
-        }
-        
-        // Limpar título
-        function cleanTitle(title) {
-            return title
-                .replace(/&#39;/g, "'")
-                .replace(/&quot;/g, '"')
-                .replace(/&amp;/g, '&')
-                .replace(/\(Official.*?\)|\[.*?\]|\|.*/g, '')
-                .replace(/MV$/i, '')
-                .replace(/HD$/i, '')
-                .replace(/4K$/i, '')
-                .trim();
-        }
-        
-        // Configurar Media Session API para notificações
-        function setupMediaSession(videoData) {
-            if (!('mediaSession' in navigator)) {
-                console.log('⚠️ Media Session API não suportada');
-                return;
-            }
-            
-            try {
-                const title = cleanTitle(videoData.snippet.title);
-                const artist = videoData.snippet.channelTitle;
-                const artwork = [];
-                
-                // Adicionar todas as thumbnails disponíveis
-                if (videoData.snippet.thumbnails?.default?.url) {
-                    artwork.push({
-                        src: videoData.snippet.thumbnails.default.url,
-                        sizes: '96x96',
-                        type: 'image/jpeg'
-                    });
-                }
-                
-                if (videoData.snippet.thumbnails?.medium?.url) {
-                    artwork.push({
-                        src: videoData.snippet.thumbnails.medium.url,
-                        sizes: '128x128',
-                        type: 'image/jpeg'
-                    });
-                }
-                
-                if (videoData.snippet.thumbnails?.high?.url) {
-                    artwork.push({
-                        src: videoData.snippet.thumbnails.high.url,
-                        sizes: '192x192',
-                        type: 'image/jpeg'
-                    });
-                }
-                
-                // Configurar metadados
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: title,
-                    artist: artist,
-                    album: 'Rádio Gospel Litoral',
-                    artwork: artwork
-                });
-                
-                // Configurar ações (play/pause apenas)
-                navigator.mediaSession.setActionHandler('play', () => {
-                    if (youtubePlayer) {
-                        youtubePlayer.playVideo();
-                        isPlaying = true;
-                        playIcon.className = 'fas fa-pause';
-                        navigator.mediaSession.playbackState = 'playing';
-                    }
-                });
-                
-                navigator.mediaSession.setActionHandler('pause', () => {
-                    if (youtubePlayer) {
-                        youtubePlayer.pauseVideo();
-                        isPlaying = false;
-                        playIcon.className = 'fas fa-play';
-                        navigator.mediaSession.playbackState = 'paused';
-                    }
-                });
-                
-                // Desativar outras ações
-                try {
-                    navigator.mediaSession.setActionHandler('previoustrack', null);
-                    navigator.mediaSession.setActionHandler('nexttrack', null);
-                    navigator.mediaSession.setActionHandler('seekbackward', null);
-                    navigator.mediaSession.setActionHandler('seekforward', null);
-                } catch (error) {
-                    // Algumas ações podem não ser suportadas
-                }
-                
-                // Forçar estado inicial como playing
-                navigator.mediaSession.playbackState = 'playing';
-                
-                console.log('✅ Media Session configurada');
-                
-            } catch (error) {
-                console.log('⚠️ Erro na Media Session:', error);
-            }
-        }
-        
-        // Alternar play/pause
-        function togglePlayPause() {
-            if (!youtubePlayer) return;
-            
-            if (isPlaying) {
-                youtubePlayer.pauseVideo();
-                isPlaying = false;
-                playIcon.className = 'fas fa-play';
-            } else {
-                youtubePlayer.playVideo();
-                isPlaying = true;
-                playIcon.className = 'fas fa-pause';
-            }
-        }
-        
-        // Stream de fallback
-        function playFallbackStream() {
-            console.log('📻 Usando stream de fallback');
-            
-            songTitle.textContent = 'Rádio Gospel Litoral';
-            songArtist.textContent = 'Transmissão Ao Vivo';
-            
-            // Usar uma música gospel conhecida como fallback
-            const fallbackVideoId = 'xy3K_fundic'; // Oceans - Hillsong
-            
-            if (!youtubePlayer) {
-                initYouTubePlayer(fallbackVideoId);
-            } else {
-                youtubePlayer.loadVideoById(fallbackVideoId);
-            }
-        }
-        
-        // PREVENIR PAUSA AUTOMÁTICA - CRÍTICO PARA BACKGROUND PLAY
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden && isPlaying && youtubePlayer) {
-                console.log('📱 App em background - Mantendo reprodução...');
-                
-                // Forçar Media Session a manter estado de playing
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.playbackState = 'playing';
-                }
-                
-                // Notificar Service Worker
-                if (navigator.serviceWorker?.controller) {
-                    navigator.serviceWorker.controller.postMessage({
-                        type: 'RADIO_PLAYING',
-                        song: currentSong?.snippet?.title || 'Rádio Gospel Litoral'
-                    });
-                }
-            }
-        });
-        
-        // Event Listeners
-        installBtn.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            
-            if (outcome === 'accepted') {
-                installBtn.style.display = 'none';
-            }
-            
-            deferredPrompt = null;
-        });
-        
-        playBtn.addEventListener('click', togglePlayPause);
-        
-        // Tecla espaço para play/pause
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                togglePlayPause();
-            }
-        });
-        
-        // Trocar música a cada 5 minutos (configurável)
-        setInterval(() => {
-            if (isPlaying) {
-                console.log('🔄 Trocanco de música automática');
-                startRadioStream();
-            }
-        }, 5 * 60 * 1000); // 5 minutos
-    </script>
+    <script src="js/main.js"></script>
 </body>
 </html>
