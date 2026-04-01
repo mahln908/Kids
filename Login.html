@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Empregos Litoral</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/869/869636.png">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .login-container {
+            max-width: 450px;
+            margin: 4rem auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .login-container h1 {
+            text-align: center;
+            color: #0ea5e9;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #0ea5e9;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 0.875rem;
+            background-color: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-login:hover {
+            background-color: #0284c7;
+        }
+        
+        .cadastro-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #6c757d;
+        }
+        
+        .cadastro-link a {
+            color: #0ea5e9;
+            text-decoration: none;
+        }
+        
+        .cadastro-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .mensagem {
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        
+        .mensagem.erro {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <img src="https://cdn-icons-png.flaticon.com/512/869/869636.png" alt="Praia" class="logo-icon">
+                <span>Empregos <span class="highlight">Litoral</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Início</a>
+                <a href="vagas.html">Vagas</a>
+                <a href="cadastro.html" class="btn-cadastro">Cadastrar</a>
+                <a href="login.html" class="active btn-login">Entrar</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="login-container">
+            <h1>Acessar minha conta</h1>
+            <div id="mensagem" class="mensagem"></div>
+            
+            <form id="formLogin">
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="email" required placeholder="seuemail@exemplo.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="senha" required placeholder="Digite sua senha">
+                </div>
+                
+                <button type="submit" class="btn-login">Entrar</button>
+            </form>
+            
+            <div class="cadastro-link">
+                Não tem uma conta? <a href="cadastro.html">Cadastre-se gratuitamente</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h4>Empregos Litoral</h4>
+                <p>Conectando talentos às melhores oportunidades no litoral</p>
+            </div>
+            <div class="footer-col">
+                <h4>Contato</h4>
+                <p>📧 contato@empregoslitoral.com.br</p>
+                <p>📞 (13) 99999-9999</p>
+                <p>📱 WhatsApp: (13) 98888-7777</p>
+            </div>
+            <div class="footer-col">
+                <h4>Redes Sociais</h4>
+                <p>📷 @empregoslitoral</p>
+                <p>👍 /empregoslitoral</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Empregos Litoral - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.getElementById('formLogin').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            
+            if (!email || !senha) {
+                mostrarMensagem('mensagem', 'Preencha todos os campos.', 'erro');
+                return;
+            }
+            
+            const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+            const usuario = usuarios.find(u => u.email === email);
+            
+            if (!usuario) {
+                mostrarMensagem('mensagem', 'E-mail não cadastrado.', 'erro');
+                return;
+            }
+            
+            localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+            
+            if (usuario.tipo === 'empregador') {
+                window.location.href = 'dashboard-empregador.html';
+            } else {
+                window.location.href = 'dashboard-candidato.html';
+            }
+        });
+    </script>
+</body>
+</html>
