@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Empregos Litoral</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/869/869636.png">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .cadastro-container {
+            max-width: 550px;
+            margin: 3rem auto;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .cadastro-container h1 {
+            text-align: center;
+            color: #0ea5e9;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #0ea5e9;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 2rem;
+            margin-top: 0.5rem;
+        }
+        
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        
+        .radio-group input {
+            width: auto;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 0.875rem;
+            background-color: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-submit:hover {
+            background-color: #0284c7;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #6c757d;
+        }
+        
+        .login-link a {
+            color: #0ea5e9;
+            text-decoration: none;
+        }
+        
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .mensagem {
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+        
+        .mensagem.sucesso {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        
+        .mensagem.erro {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        
+        .campos-empresa {
+            display: none;
+        }
+        
+        small {
+            color: #6c757d;
+            font-size: 0.75rem;
+            display: block;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <img src="https://cdn-icons-png.flaticon.com/512/869/869636.png" alt="Praia" class="logo-icon">
+                <span>Empregos <span class="highlight">Litoral</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Início</a>
+                <a href="vagas.html">Vagas</a>
+                <a href="cadastro.html" class="active btn-cadastro">Cadastrar</a>
+                <a href="login.html" class="btn-login">Entrar</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="cadastro-container">
+            <h1>Criar minha conta</h1>
+            <div id="mensagem" class="mensagem"></div>
+            
+            <form id="formCadastro">
+                <div class="form-group">
+                    <label>Tipo de conta</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="tipo" value="candidato" id="tipo-candidato" checked> Candidato
+                        </label>
+                        <label>
+                            <input type="radio" name="tipo" value="empregador" id="tipo-empregador"> Empregador
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Nome completo</label>
+                    <input type="text" id="nome" required placeholder="Digite seu nome completo">
+                </div>
+                
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="email" required placeholder="seuemail@exemplo.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>Telefone / WhatsApp</label>
+                    <input type="tel" id="telefone" required placeholder="(13) 99999-9999" oninput="formatarTelefone(this)">
+                </div>
+                
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="senha" required placeholder="Mínimo 6 caracteres">
+                </div>
+                
+                <div class="form-group">
+                    <label>Confirmar senha</label>
+                    <input type="password" id="confirmarSenha" required placeholder="Digite a senha novamente">
+                </div>
+                
+                <div id="campos-empresa" class="campos-empresa">
+                    <div class="form-group">
+                        <label>Nome da empresa</label>
+                        <input type="text" id="nomeEmpresa" placeholder="Nome da sua empresa">
+                    </div>
+                    <div class="form-group">
+                        <label>CNPJ</label>
+                        <input type="text" id="cnpj" placeholder="00.000.000/0000-00">
+                        <small>Opcional</small>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Cidade</label>
+                    <select id="cidade" required>
+                        <option value="">Selecione sua cidade</option>
+                        <option value="Santos">Santos</option>
+                        <option value="Sao Vicente">São Vicente</option>
+                        <option value="Praia Grande">Praia Grande</option>
+                        <option value="Guaruja">Guarujá</option>
+                        <option value="Bertioga">Bertioga</option>
+                        <option value="Itanhaem">Itanhaém</option>
+                        <option value="Peruibe">Peruíbe</option>
+                        <option value="Outra">Outra cidade</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-submit">Cadastrar</button>
+            </form>
+            
+            <div class="login-link">
+                Já tem uma conta? <a href="login.html">Faça login</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h4>Empregos Litoral</h4>
+                <p>Conectando talentos às melhores oportunidades no litoral</p>
+            </div>
+            <div class="footer-col">
+                <h4>Contato</h4>
+                <p>📧 contato@empregoslitoral.com.br</p>
+                <p>📞 (13) 99999-9999</p>
+                <p>📱 WhatsApp: (13) 98888-7777</p>
+            </div>
+            <div class="footer-col">
+                <h4>Redes Sociais</h4>
+                <p>📷 @empregoslitoral</p>
+                <p>👍 /empregoslitoral</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Empregos Litoral - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.getElementById('formCadastro').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const telefone = document.getElementById('telefone').value;
+            const senha = document.getElementById('senha').value;
+            const confirmarSenha = document.getElementById('confirmarSenha').value;
+            const tipo = document.querySelector('input[name="tipo"]:checked').value;
+            const cidade = document.getElementById('cidade').value;
+            
+            if (!nome || !email || !telefone || !senha || !cidade) {
+                mostrarMensagem('mensagem', 'Preencha todos os campos obrigatórios.', 'erro');
+                return;
+            }
+            
+            if (senha !== confirmarSenha) {
+                mostrarMensagem('mensagem', 'As senhas não conferem.', 'erro');
+                return;
+            }
+            
+            if (senha.length < 6) {
+                mostrarMensagem('mensagem', 'A senha deve ter no mínimo 6 caracteres.', 'erro');
+                return;
+            }
+            
+            if (!validarEmail(email)) {
+                mostrarMensagem('mensagem', 'Digite um e-mail válido.', 'erro');
+                return;
+            }
+            
+            let nomeEmpresa = '';
+            if (tipo === 'empregador') {
+                nomeEmpresa = document.getElementById('nomeEmpresa').value;
+                if (!nomeEmpresa) {
+                    mostrarMensagem('mensagem', 'Informe o nome da empresa.', 'erro');
+                    return;
+                }
+            }
+            
+            const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+            
+            if (usuarios.some(u => u.email === email)) {
+                mostrarMensagem('mensagem', 'Este e-mail já está cadastrado.', 'erro');
+                return;
+            }
+            
+            const novoUsuario = {
+                id: Date.now(),
+                nome: nome,
+                email: email,
+                telefone: telefone,
+                tipo: tipo,
+                cidade: cidade,
+                dataCadastro: new Date().toISOString()
+            };
+            
+            if (tipo === 'empregador') {
+                novoUsuario.nomeEmpresa = nomeEmpresa;
+                novoUsuario.cnpj = document.getElementById('cnpj').value;
+            }
+            
+            usuarios.push(novoUsuario);
+            localStorage.setItem('usuarios', JSON.stringify(usuarios));
+            localStorage.setItem('usuarioLogado', JSON.stringify(novoUsuario));
+            
+            mostrarMensagem('mensagem', 'Cadastro realizado com sucesso!', 'sucesso');
+            
+            setTimeout(() => {
+                if (tipo === 'empregador') {
+                    window.location.href = 'dashboard-empregador.html';
+                } else {
+                    window.location.href = 'dashboard-candidato.html';
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+  </html>
